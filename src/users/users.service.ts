@@ -2,15 +2,19 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './users.dto';
 import { UserRepository } from './users.repository';
 import * as bcrypt from 'bcrypt';
-import { AppService } from 'src/app.service';
-import { generateActiveToken } from 'src/commons/generate-token';
-import { ROLE_ENUM } from './users.constant';
+import { AppService } from '../app.service';
+import { generateActiveToken } from '../commons/generate-token';
+import { ROLE_ENUM, STATE_ENUM } from './users.constant';
+import { verifyToken } from '../commons/verify-token';
+import { ObjectID, PayloadUser } from 'src/commons/commons.type';
+import { Request } from 'express';
 @Injectable()
 export class UsersService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly appService: AppService,
   ) {}
+
   async register(createUserDto: CreateUserDto): Promise<any> {
     const findUser = await this.userRepository.findOne({
       email: createUserDto.email,
@@ -26,13 +30,12 @@ export class UsersService {
       role: ROLE_ENUM.USER,
       email: createUser.email,
     });
-    const html = `Click to active: <a href="${process.env.FROENT_HOST}?token=${activeToken}"><a href="${process.env.FROENT_HOST}?token=${activeToken}</a>`;
+    const html = `Click to active: <a href="${process.env.FROENT_HOST}?token=${activeToken}">${process.env.FROENT_HOST}?token=${activeToken}</a>`;
     const subject = 'VERIFY EMAIL';
     await this.appService.sendMail(createUserDto, html, subject);
-    console.log(html);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { _id, userName, isVerify, createdAt, updatedAt, ...data } =
+    const { _id, userName, isVerify, createdAt, updatedAt, ...hiden } =
       createUser;
     return {
       _id,
@@ -41,5 +44,26 @@ export class UsersService {
       createdAt,
       updatedAt,
     };
+  }
+  async vefifyEmail(token: string) {
+    const data: PayloadUser = verifyToken(token, process.env.VERIFY_TOKEN_KEY);
+    const userAfterUpdate = await this.userRepository.findOneAndUpdate(
+      { email: data.email },
+      { isVerify: STATE_ENUM.ACTIVE },
+    );
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { _id, userName, isVerify, createdAt, updatedAt, ...hiden } =
+      userAfterUpdate;
+    return {
+      _id,
+      userName,
+      isVerify,
+      createdAt,
+      updatedAt,
+    };
+  }
+
+  deleteUser(id: ObjectID) {
+    return this.userRepository.deleteMany({ _id: id });
   }
 }

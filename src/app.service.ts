@@ -8,7 +8,7 @@ export class AppService {
   async sendMail(user: any, html, subject) {
     await this.mailerService.sendMail({
       to: user.email,
-      from: 'xuanngochq2k@gmail.com',
+      from: process.env.EMAIL_USER,
       subject: subject,
       html: html,
     });

@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { JwtStrategy } from './jwt.strategy';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { RolesGuard } from './roles.guard';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -24,6 +25,7 @@ import { JwtAuthGuard } from './jwt-auth.guard';
     LocalAuthGuard,
     JwtStrategy,
     JwtAuthGuard,
+    RolesGuard,
   ],
 })
 export class AuthModule {}

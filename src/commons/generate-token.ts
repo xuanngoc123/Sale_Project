@@ -7,7 +7,7 @@ export function generateActiveToken(payloadUser: PayloadUser) {
       email: payloadUser.email,
       role: payloadUser.role,
     },
-    process.env.ACTIVE_TOKEN_KEY,
+    process.env.VERIFY_TOKEN_KEY,
     { expiresIn: '180s' },
   );
 }
