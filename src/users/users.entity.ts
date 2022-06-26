@@ -1,4 +1,4 @@
-import { ObjectID } from 'src/commons/commons.type';
+import { ObjectID } from '../commons/commons.type';
 
 export interface IUsers {
   _id: ObjectID;

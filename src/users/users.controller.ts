@@ -8,8 +8,9 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiInternalServerErrorResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
+import { ExInternalServerError } from '../swagger/value-example';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
@@ -18,6 +19,10 @@ import { ROLE_ENUM } from './users.constant';
 import { CreateUserDto } from './users.dto';
 import { UsersService } from './users.service';
 @ApiTags('User')
+@ApiInternalServerErrorResponse({
+  description: 'Internal Server Error',
+  type: ExInternalServerError,
+})
 @Controller('users')
 export class UsersController {
   constructor(private userService: UsersService) {}
@@ -31,7 +36,7 @@ export class UsersController {
     return this.userService.vefifyEmail(token);
   }
 
-  @Roles(ROLE_ENUM.ADMIN)
+  @Roles(ROLE_ENUM.USER)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete()
   deleteUser(@Query('id') id: ObjectID, @Req() req: Request) {

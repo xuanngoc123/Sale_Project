@@ -1,11 +1,12 @@
 import * as jwt from 'jsonwebtoken';
-import { PayloadUser } from './commons.type';
+import { PayloadJwt } from './commons.type';
 
-export function generateActiveToken(payloadUser: PayloadUser) {
+export function generateActiveToken(payloadJwt: PayloadJwt): string {
   return jwt.sign(
     {
-      email: payloadUser.email,
-      role: payloadUser.role,
+      email: payloadJwt.email,
+      role: payloadJwt.role,
+      userName: payloadJwt.userName,
     },
     process.env.VERIFY_TOKEN_KEY,
     { expiresIn: '180s' },
