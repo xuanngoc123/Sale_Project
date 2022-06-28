@@ -1,16 +1,7 @@
-import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AppService {
-  constructor(private mailerService: MailerService) {}
-
-  async sendMail(user: any, html, subject) {
-    await this.mailerService.sendMail({
-      to: user.email,
-      from: process.env.EMAIL_USER,
-      subject: subject,
-      html: html,
-    });
-  }
+  constructor(private jwtService: JwtService) {}
 }

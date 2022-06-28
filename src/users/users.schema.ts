@@ -24,7 +24,7 @@ export class User {
   role: string;
 
   @Prop({ enum: STATE_ENUM, default: STATE_ENUM.INACTIVE })
-  isVerify: string;
+  status: string;
 
   @Prop()
   createdAt: Date;

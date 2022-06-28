@@ -11,11 +11,19 @@ import { OrdersModule } from './orders/orders.module';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MailModule } from './mail/mail.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRoot(`${process.env.MONGODB_URL}`),
+    {
+      ...JwtModule.register({
+        secret: process.env.ACCESS_TOKEN_KEY,
+        signOptions: { expiresIn: '3600s' },
+      }),
+      global: true,
+    },
     UsersModule,
     AuthModule,
     CategorysModule,
@@ -27,5 +35,6 @@ import { MailModule } from './mail/mail.module';
   ],
   controllers: [AppController],
   providers: [AppService],
+  // exports: [JwtModule],
 })
 export class AppModule {}

@@ -8,17 +8,13 @@ export abstract class EntityRepository<T extends Document> {
     entityFilterQuery: FilterQuery<T>,
     projection?: Record<string, unknown>,
   ): Promise<T | null> {
-    const result = await this.entityModel
+    return this.entityModel
       .findOne(entityFilterQuery, {
         _id: 0,
         __v: 0,
         ...projection,
       })
       .exec();
-    if (!result) {
-      throw new NotFoundException();
-    }
-    return result;
   }
 
   async find(entityFilterQuery: FilterQuery<T>): Promise<T[] | null> {
