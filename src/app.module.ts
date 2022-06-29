@@ -3,7 +3,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
-import { CategorysModule } from './categorys/categorys.module';
 import { ItemsModule } from './items/items.module';
 import { VouchersModule } from './vouchers/vouchers.module';
 import { FlashSalesModule } from './flash-sales/flash-sales.module';
@@ -12,6 +11,8 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MailModule } from './mail/mail.module';
 import { JwtModule } from '@nestjs/jwt';
+import { CategoriesModule } from './categories/categories.module';
+import { FileUploadModule } from './file-upload/file-upload.module';
 
 @Module({
   imports: [
@@ -26,12 +27,13 @@ import { JwtModule } from '@nestjs/jwt';
     },
     UsersModule,
     AuthModule,
-    CategorysModule,
     ItemsModule,
     VouchersModule,
     FlashSalesModule,
     OrdersModule,
     MailModule,
+    CategoriesModule,
+    FileUploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],

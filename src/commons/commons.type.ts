@@ -9,3 +9,8 @@ export class PayloadJwt {
   userName: string;
   status: STATE_ENUM;
 }
+
+export class ResponseUploadFile {
+  key: string;
+  publicUrl: string;
+}
