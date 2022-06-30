@@ -24,22 +24,12 @@ export class FileUploadService {
       region: process.env.AWS_BUCKET_REGION,
     });
     const data = await s3.upload(params).promise();
-    console.log(data);
 
     const responseUploadFile: ResponseUploadFile = {
       key: data.Key,
       publicUrl: data.Location,
     };
     return responseUploadFile;
-
-    // const data = await this.s3.upload(params);
-    // console.log(data);
-
-    // const responseUploadFile: ResponseUploadFile = {
-    //   key: 'data.Key',
-    //   publicUrl: 'data.Location',
-    // };
-    // return responseUploadFile;
   }
 
   getUrl(key) {

@@ -6,10 +6,10 @@ export class CreateCategoryDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty()
+  // @ApiProperty()
   imageBaners: string[];
 
-  @ApiProperty()
+  // @ApiProperty()
   imageCategory: string;
 
   @ApiProperty()
@@ -22,5 +22,25 @@ export class CreateCategoryDto {
 
   @ApiProperty()
   @IsNotEmpty()
+  priority: number;
+}
+
+export class UpdateCategoryDto {
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty()
+  imageBaners: string[];
+
+  @ApiProperty()
+  imageCategory: string;
+
+  @ApiProperty()
+  status: string;
+
+  @ApiProperty()
+  description: string;
+
+  @ApiProperty()
   priority: number;
 }

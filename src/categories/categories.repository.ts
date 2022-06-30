@@ -6,8 +6,8 @@ import { Category, CategoryDocument } from './categories.shema';
 @Injectable()
 export class CategoryRepository extends EntityRepository<CategoryDocument> {
   constructor(
-    @InjectModel(Category.name) private userModel: Model<CategoryDocument>,
+    @InjectModel(Category.name) private categoryModel: Model<CategoryDocument>,
   ) {
-    super(userModel);
+    super(categoryModel);
   }
 }
