@@ -9,13 +9,26 @@ import { FlashSalesModule } from './flash-sales/flash-sales.module';
 import { OrdersModule } from './orders/orders.module';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { MailModule } from './mail/mail.module';
+import { MailsModule } from './mails/mails.module';
 import { JwtModule } from '@nestjs/jwt';
 import { CategoriesModule } from './categories/categories.module';
 import { FileUploadModule } from './file-upload/file-upload.module';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
+    MailerModule.forRoot({
+      transport: {
+        host: process.env.MAIL_SERVER,
+        auth: {
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_PASS,
+        },
+        tls: {
+          rejectUnauthorized: false,
+        },
+      },
+    }),
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRoot(`${process.env.MONGODB_URL}`),
     {
@@ -31,7 +44,7 @@ import { FileUploadModule } from './file-upload/file-upload.module';
     VouchersModule,
     FlashSalesModule,
     OrdersModule,
-    MailModule,
+    MailsModule,
     CategoriesModule,
     FileUploadModule,
   ],

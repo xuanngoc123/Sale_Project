@@ -12,7 +12,11 @@ async function bootstrap() {
     region: process.env.AWS_BUCKET_REGION,
   });
   app.setGlobalPrefix(`api/${process.env.VERSION}`);
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+    }),
+  );
   const config = new DocumentBuilder()
     .setTitle('Order')
     .setDescription('The order API description')

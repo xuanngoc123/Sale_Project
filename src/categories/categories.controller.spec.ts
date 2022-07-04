@@ -1,6 +1,7 @@
+import { ExpressAdapter } from '@nestjs/platform-express';
 import { Test, TestingModule } from '@nestjs/testing';
-import { UsersService } from '../users/users.service';
 import { CategoriesController } from './categories.controller';
+import { CreateCategoryDto } from './dto/categories.dto';
 import { CategoriesService } from './categories.service';
 
 describe('CategoriesController', () => {
@@ -18,7 +19,7 @@ describe('CategoriesController', () => {
       controllers: [CategoriesController],
       providers: [CategoriesService],
     })
-      .overrideProvider(UsersService)
+      .overrideProvider(CategoriesService)
       .useValue(MockCategoryService)
       .compile();
 
@@ -27,5 +28,14 @@ describe('CategoriesController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+  describe('create category', () => {
+    const file = new File(['imageCategory'], 'darthvader.png', {});
+    Object.defineProperty(file, 'size', { value: 1024 * 1024 + 1 });
+    it('[Expect-success] Should call service to create category', async () => {
+      MockCategoryService.createCategory.mockResolvedValue(true);
+      // const result = await controller.createCategory(new CreateCategoryDto());
+      // expect(result).toBe(true);
+    });
   });
 });

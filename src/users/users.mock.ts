@@ -1,5 +1,5 @@
-import { STATE_ENUM } from './users.constant';
-import { CreateUserDto } from './users.dto';
+import { ROLE_ENUM, STATE_ENUM } from './users.constant';
+import { CreateUserDto } from './dto/create-user.dto';
 
 export const mockCreateUser: any = {
   _id: Date.now(),

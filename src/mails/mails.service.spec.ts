@@ -1,23 +1,23 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { MailModule } from './mail.module';
-import { MailService } from './mail.service';
+import { MailsModule } from './mails.module';
+import { MailsService } from './mails.service';
 
-describe('MailService', () => {
-  let service: MailService;
+describe('MailsService', () => {
+  let service: MailsService;
 
-  const MockMailService = {
+  const MockMailsService = {
     sendMail: jest.fn(),
   };
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [MailModule],
-      providers: [MailService],
+      imports: [MailsModule],
+      providers: [MailsService],
     })
-      .overrideProvider(MailService)
-      .useValue(MockMailService)
+      .overrideProvider(MailsService)
+      .useValue(MockMailsService)
       .compile();
 
-    service = module.get<MailService>(MailService);
+    service = module.get<MailsService>(MailsService);
   });
 
   it('should be defined', () => {
@@ -26,7 +26,7 @@ describe('MailService', () => {
 
   describe('sendMail', () => {
     it('[Expect-Success] Send Mail', async () => {
-      MockMailService.sendMail.mockReturnValue(true);
+      MockMailsService.sendMail.mockReturnValue(true);
       const result = await service.sendMail(
         { email: 'xuanngochq2k@gmail.com' },
         'abc',

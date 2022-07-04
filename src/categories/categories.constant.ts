@@ -1,0 +1,4 @@
+export enum STATUS_CATEGORY_ENUM {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+}

@@ -7,19 +7,16 @@ import {
   Post,
   Put,
   Query,
-  UploadedFiles,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
-import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
-import { fileFilter } from '../commons/file-filter';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { ROLE_ENUM } from '../users/users.constant';
-import { CreateItemDto, UpdateItemDto } from './items.dto';
+import { CreateItemDto, UpdateItemDto } from './dto/items.dto';
 import { ItemsService } from './items.service';
+import { IItem } from './entities/item.entity';
 
 @ApiTags('Item')
 @Roles(ROLE_ENUM.ADMIN)
@@ -29,40 +26,30 @@ export class ItemsController {
   constructor(private itemsService: ItemsService) {}
 
   @Post()
-  @UseInterceptors(
-    FileFieldsInterceptor([{ name: 'images', maxCount: 10 }], {
-      fileFilter: fileFilter,
-    }),
-  )
-  createItems(
-    @Body() createItemDto: CreateItemDto,
-    @UploadedFiles() files: Express.Multer.File,
-  ) {
-    return this.itemsService.createItem(createItemDto, files);
+  createItems(@Body() createItemDto: CreateItemDto): Promise<IItem> {
+    return this.itemsService.createItem(createItemDto);
   }
 
   @Put(':id')
-  @UseInterceptors(
-    FileFieldsInterceptor([{ name: 'images', maxCount: 10 }], {
-      fileFilter: fileFilter,
-    }),
-  )
   updateItems(
     @Param('id') id: string,
     @Body() updateItemDto: UpdateItemDto,
-    @UploadedFiles() files: Express.Multer.File,
-  ) {
-    return this.itemsService.updateItem(updateItemDto, files, id);
+  ): Promise<IItem> {
+    return this.itemsService.updateItem(updateItemDto, id);
   }
+
   @Get()
-  getItem(@Query('option') option: string) {
-    if (option === 'all') {
-      return this.itemsService.getAllItems();
-    }
-    return this.itemsService.getItemById(option);
+  getItemById(@Query('id') id: string): Promise<IItem> {
+    return this.itemsService.getItemById(id);
   }
+
+  @Get()
+  getAllItems(): Promise<IItem[]> {
+    return this.itemsService.getAllItems();
+  }
+
   @Delete()
-  deleteItemById(@Query('id') id: string) {
+  deleteItemById(@Query('id') id: string): Promise<any> {
     return this.itemsService.deleteItemById(id);
   }
 }

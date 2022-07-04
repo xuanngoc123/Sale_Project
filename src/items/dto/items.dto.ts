@@ -1,5 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
+import { ObjectID } from '../../commons/commons.type';
 
 export class CreateItemDto {
   @ApiProperty()
@@ -44,41 +45,6 @@ export class CreateItemDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  categoryName: string;
+  categoryId: ObjectID;
 }
-export class UpdateItemDto {
-  @ApiProperty()
-  name: string;
-
-  @ApiProperty()
-  barcode: string;
-
-  @ApiProperty()
-  cost: number;
-
-  images: string[];
-
-  @ApiProperty()
-  price: number;
-
-  @ApiProperty()
-  quantity: number;
-
-  @ApiProperty()
-  quantitySold: number;
-
-  @ApiProperty()
-  weight: number;
-
-  @ApiProperty()
-  description: string;
-
-  @ApiProperty()
-  isFlashSale: boolean;
-
-  @ApiProperty()
-  tag: string;
-
-  @ApiProperty()
-  categoryName: string;
-}
+export class UpdateItemDto extends PartialType(CreateItemDto) {}

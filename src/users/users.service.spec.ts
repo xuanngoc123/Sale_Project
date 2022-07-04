@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { mockConflicException } from '../mocks/reject.value';
-import { MailModule } from '../mail/mail.module';
-import { MailService } from '../mail/mail.service';
+import { MailsModule } from '../mails/mails.module';
+import { MailsService } from '../mails/mails.service';
 import { mockCreateUser, mockCreateUserDto } from './users.mock';
 import { UserRepository } from './users.repository';
 import { UsersService } from './users.service';
@@ -16,7 +16,7 @@ describe('UsersService', () => {
     create: jest.fn(),
     findOneAndUpdate: jest.fn(),
   };
-  const MockMailService = {
+  const MockMailsService = {
     sendMail: jest.fn(),
   };
   const MockJwtService = {
@@ -26,13 +26,13 @@ describe('UsersService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [MailModule, JwtModule, ConfigModule.forRoot()],
-      providers: [UsersService, UserRepository, MailService],
+      imports: [MailsModule, JwtModule, ConfigModule.forRoot()],
+      providers: [UsersService, UserRepository, MailsService],
     })
       .overrideProvider(UserRepository)
       .useValue(MockUserRepository)
-      .overrideProvider(MailService)
-      .useValue(MockMailService)
+      .overrideProvider(MailsService)
+      .useValue(MockMailsService)
       .overrideProvider(JwtService)
       .useValue(MockJwtService)
       .compile();
@@ -49,7 +49,7 @@ describe('UsersService', () => {
   describe('register', () => {
     it('[Expect-Success] Register', async () => {
       MockUserRepository.create.mockResolvedValue(mockCreateUser);
-      MockMailService.sendMail.mockResolvedValue(true);
+      MockMailsService.sendMail.mockResolvedValue(true);
       const result = await service.register(mockCreateUserDto);
       expect(result).toEqual(mockCreateUser);
     });

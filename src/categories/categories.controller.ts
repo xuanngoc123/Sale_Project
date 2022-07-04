@@ -12,75 +12,50 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { ROLE_ENUM } from '../users/users.constant';
-import { CreateCategoryDto, UpdateCategoryDto } from './categories.dto';
+import { CreateCategoryDto, UpdateCategoryDto } from './dto/categories.dto';
 import { CategoriesService } from './categories.service';
-import { fileFilter } from '../commons/file-filter';
+import { ICategory } from './entities/catetgory.entity';
 
 @ApiTags('Category')
 @Roles(ROLE_ENUM.ADMIN)
 @UseGuards(JwtAuthGuard, RolesGuard)
+@ApiBearerAuth('Authorization')
 @Controller('categories')
 export class CategoriesController {
   constructor(private caegoriesService: CategoriesService) {}
 
   @Post()
-  @UseInterceptors(
-    FileFieldsInterceptor(
-      [
-        { name: 'imageCategory', maxCount: 1 },
-        { name: 'imageBaners', maxCount: 3 },
-      ],
-      { fileFilter: fileFilter },
-    ),
-  )
   async createCategory(
     @Body() createCategoryDto: CreateCategoryDto,
-    @UploadedFiles()
-    files: {
-      imageCategory?: Express.Multer.File;
-      imageBaners?: Express.Multer.File[];
-    },
-  ): Promise<any> {
-    return this.caegoriesService.createCategory(createCategoryDto, files);
+  ): Promise<ICategory> {
+    return this.caegoriesService.createCategory(createCategoryDto);
   }
 
   @Get()
-  getCategory(@Query('option') option: string) {
-    if (option === 'all') {
-      return this.caegoriesService.getAllCategories();
-    }
-    return this.caegoriesService.getCategoryById(option);
+  getCategoryById(@Query('id') id: string): Promise<ICategory> {
+    return this.caegoriesService.getCategoryById(id);
+  }
+
+  @Get()
+  getAllCategory(): Promise<ICategory[]> {
+    return this.caegoriesService.getAllCategories();
   }
 
   @Put(':id')
-  @UseInterceptors(
-    FileFieldsInterceptor(
-      [
-        { name: 'imageCategory', maxCount: 1 },
-        { name: 'imageBaners', maxCount: 3 },
-      ],
-      { fileFilter: fileFilter },
-    ),
-  )
   async updateCategory(
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
-    @UploadedFiles()
-    files: {
-      imageCategory?: Express.Multer.File;
-      imageBaners?: Express.Multer.File[];
-    },
-  ): Promise<any> {
-    return this.caegoriesService.updateCategory(updateCategoryDto, files, id);
+  ): Promise<ICategory> {
+    return this.caegoriesService.updateCategory(updateCategoryDto, id);
   }
 
   @Delete()
-  deleteCategory(@Query('id') id: string) {
+  deleteCategory(@Query('id') id: string): Promise<any> {
     return this.caegoriesService.deleteCategoryById(id);
   }
 }

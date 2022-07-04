@@ -37,7 +37,7 @@ export class Item {
   @Prop({ required: true })
   tag: string;
 
-  @Prop({ type: mongoose.Types.ObjectId, ref: 'Category' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Category' })
   categoryId: Category;
 
   @Prop()
