@@ -1,12 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsNotEmpty, ValidateNested } from 'class-validator';
+import {
+  IsLongerThan,
+  IsShorterThan,
+} from '../../decorators/date-validator.decorator';
 import { ObjectID } from '../../commons/commons.type';
 
-class ItemFlashSale {
+export class ItemFlashSaleDto {
   @ApiProperty()
   @IsNotEmpty()
-  productId: ObjectID;
+  itemId: ObjectID;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -18,11 +22,7 @@ class ItemFlashSale {
 
   @ApiProperty()
   @IsNotEmpty()
-  quantitySold: number;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  discount: number;
+  discount: 0;
 }
 
 export class CreateFlashSaleDto {
@@ -31,16 +31,18 @@ export class CreateFlashSaleDto {
   name: string;
 
   @IsNotEmpty()
-  @ApiProperty({ type: [ItemFlashSale] })
+  @ApiProperty({ type: [ItemFlashSaleDto] })
   @ValidateNested({ each: true })
-  @Type(() => ItemFlashSale)
-  listItems: [ItemFlashSale];
+  @Type(() => ItemFlashSaleDto)
+  listItems: [ItemFlashSaleDto];
 
   @ApiProperty()
   @IsNotEmpty()
+  @IsShorterThan('endTime', { message: 'startTime must be shorter endTime' })
   startTime: Date;
 
   @ApiProperty()
   @IsNotEmpty()
+  @IsLongerThan('startTime', { message: 'endTime must be longer startTime' })
   endTime: Date;
 }

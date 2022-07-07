@@ -21,10 +21,12 @@ export class ItemsService {
   }
 
   async getItemById(id: string): Promise<IItem> {
-    return this.itemRepository.findOne({ _id: id });
+    return (await this.itemRepository.findOne({ _id: id })).populate(
+      'categoryId',
+    );
   }
 
   async deleteItemById(id: string) {
-    return this.itemRepository.deleteMany({ _id: id });
+    return this.itemRepository.deleteOne({ _id: id });
   }
 }

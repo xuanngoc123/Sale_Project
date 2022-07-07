@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { S3 } from 'aws-sdk';
 import { ResponseUploadFile } from '../commons/commons.type';
 import { FOLDER_UPLOAD_ENUM } from './file-upload.constant';
@@ -25,7 +25,7 @@ export class FileUploadService {
     const data = await s3.upload(params).promise();
 
     const responseUploadFile: ResponseUploadFile = {
-      key: data.Key.split('/')[1],
+      key: data.Key,
       publicUrl: data.Location,
     };
     return responseUploadFile;
@@ -68,6 +68,7 @@ export class FileUploadService {
         files.images[0],
         FOLDER_UPLOAD_ENUM.ITEM,
       );
+
       keyOfImageItems.push(uploadImageItem.key);
     }
     result = {
@@ -89,7 +90,7 @@ export class FileUploadService {
     const params = {
       Key: key,
       Bucket: process.env.AWS_BUCKET_NAME,
-      Expires: process.env.TIME_EXPIRE_IMAGE,
+      Expires: Number(process.env.TIME_EXPIRE_IMAGE),
     };
     return s3.getSignedUrl('getObject', params);
   }

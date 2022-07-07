@@ -21,13 +21,11 @@ export interface IItem {
 
   description: string;
 
-  isFlashSale: boolean;
-
   tag: string;
 
-  // categoryId?: ObjectID;
+  categoryName: string;
 
-  createdAt: Date;
+  createdAt?: Date;
 
-  updatedAt: Date;
+  updatedAt?: Date;
 }

@@ -15,8 +15,6 @@ export interface IUpdateItem {
 
   description?: string;
 
-  isFlashSale?: boolean;
-
   tag?: string;
 
   categoryName?: string;

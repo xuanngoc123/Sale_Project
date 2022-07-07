@@ -12,7 +12,7 @@ import {
 import { ApiInternalServerErrorResponse, ApiTags } from '@nestjs/swagger';
 import { ExInternalServerError } from '../swagger/value-example';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { Roles } from '../auth/roles.decorator';
+import { Roles } from '../decorators/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { ObjectID } from '../commons/commons.type';
 import { ROLE_ENUM } from './users.constant';

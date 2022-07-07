@@ -33,6 +33,6 @@ export class CategoriesService {
   }
 
   async deleteCategoryById(id): Promise<any> {
-    return this.categoryRepository.deleteMany({ _id: id });
+    return this.categoryRepository.deleteOne({ _id: id });
   }
 }

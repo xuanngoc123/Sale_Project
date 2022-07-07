@@ -23,6 +23,6 @@ export class VouchersService {
   }
 
   deleteVoucher(id: string) {
-    return this.voucherRepository.deleteMany({ _id: id });
+    return this.voucherRepository.deleteOne({ _id: id });
   }
 }

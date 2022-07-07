@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { Roles } from '../auth/roles.decorator';
+import { Roles } from '../decorators/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { ROLE_ENUM } from '../users/users.constant';
 import { CreateVoucherDto } from './dto/create-voucher.dto';

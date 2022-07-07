@@ -53,7 +53,7 @@ export class UsersService {
     const data: PayloadJwt = this.jwtService.verify(token);
     const userAfterUpdate = await this.userRepository.findOneAndUpdate(
       { email: data.email },
-      { isVerify: STATE_ENUM.ACTIVE },
+      { status: STATE_ENUM.ACTIVE },
     );
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { _id, userName, status, createdAt, updatedAt, ...hiden } =
@@ -69,10 +69,14 @@ export class UsersService {
   }
 
   async deleteUser(id: ObjectID): Promise<void> {
-    await this.userRepository.deleteMany({ _id: id });
+    await this.userRepository.deleteOne({ _id: id });
   }
 
   findOne(filterQuery: FilterQuery<UserDocument>) {
     return this.userRepository.findOne(filterQuery);
+  }
+
+  findAll(condition) {
+    return this.userRepository.find(condition);
   }
 }

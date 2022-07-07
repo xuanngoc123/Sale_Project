@@ -9,15 +9,18 @@ export abstract class EntityRepository<T extends Document> {
     projection?: Record<string, unknown>,
   ): Promise<T | null> {
     return this.entityModel
-      .findOne(entityFilterQuery, {
-        __v: 0,
-        ...projection,
-      })
+      .findOne(
+        { ...entityFilterQuery, _delete: false },
+        {
+          __v: 0,
+          ...projection,
+        },
+      )
       .exec();
   }
 
   async find(entityFilterQuery: FilterQuery<T>): Promise<T[] | null> {
-    return this.entityModel.find(entityFilterQuery);
+    return this.entityModel.find({ ...entityFilterQuery, _delete: false });
   }
 
   async create(createEntityData: unknown): Promise<T> {
@@ -28,25 +31,27 @@ export abstract class EntityRepository<T extends Document> {
   async findOneAndUpdate(
     entityFilterQuery: FilterQuery<T>,
     updateEntityData: UpdateQuery<unknown>,
-  ): Promise<T | null> {
-    const result = await this.entityModel.findOneAndUpdate(
-      entityFilterQuery,
-      updateEntityData,
-      {
-        new: true,
-      },
-    );
+  ): Promise<T | null | any> {
+    const result = await this.findOne(entityFilterQuery);
     if (!result) {
       throw new NotFoundException();
     }
-    return result;
+    const arrKey = Object.keys(updateEntityData);
+    for (let i = 0, length = arrKey.length; i < length; i++) {
+      result[`${arrKey[i]}`] = updateEntityData[`${arrKey[i]}`];
+    }
+
+    return result.save();
   }
 
-  async deleteMany(entityFilterQuery: FilterQuery<T>): Promise<boolean> {
-    const deleteResult = await this.entityModel.deleteMany(entityFilterQuery);
-    if (deleteResult.deletedCount < 1) {
+  async deleteOne(entityFilterQuery: FilterQuery<T>): Promise<T | null | any> {
+    const find = await this.findOne(entityFilterQuery);
+    if (!find) {
       throw new NotFoundException();
     }
-    return deleteResult.deletedCount >= 1;
+    find['name'] = `${find['name']}-${Date.now()}}`;
+    find['_delete'] = true;
+    find.save();
+    return true;
   }
 }

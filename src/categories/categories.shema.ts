@@ -5,7 +5,7 @@ import { STATUS_CATEGORY_ENUM } from './categories.constant';
 export type CategoryDocument = Category & Document;
 @Schema({ timestamps: true })
 export class Category {
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   name: string;
 
   @Prop({ required: true })
@@ -32,6 +32,9 @@ export class Category {
 
   @Prop()
   updatedAt: Date;
+
+  @Prop({ default: false })
+  _delete: boolean;
 }
 
 export const CategorySchema = SchemaFactory.createForClass(Category);

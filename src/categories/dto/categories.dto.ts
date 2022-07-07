@@ -15,7 +15,7 @@ export class CreateCategoryDto {
   @IsNotEmpty()
   imageCategory: string;
 
-  @ApiPropertyOptional()
+  @ApiProperty()
   @IsEnum(STATUS_CATEGORY_ENUM)
   status: STATUS_CATEGORY_ENUM;
 

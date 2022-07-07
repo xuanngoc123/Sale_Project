@@ -1,7 +1,6 @@
-import { ExpressAdapter } from '@nestjs/platform-express';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CategoriesController } from './categories.controller';
-import { CreateCategoryDto } from './dto/categories.dto';
+import { CreateCategoryDto, UpdateCategoryDto } from './dto/categories.dto';
 import { CategoriesService } from './categories.service';
 
 describe('CategoriesController', () => {
@@ -30,12 +29,47 @@ describe('CategoriesController', () => {
     expect(controller).toBeDefined();
   });
   describe('create category', () => {
-    const file = new File(['imageCategory'], 'darthvader.png', {});
-    Object.defineProperty(file, 'size', { value: 1024 * 1024 + 1 });
+    // const file = new File(['imageCategory'], 'darthvader.png', {});
+    // Object.defineProperty(file, 'size', { value: 1024 * 1024 + 1 });
     it('[Expect-success] Should call service to create category', async () => {
       MockCategoryService.createCategory.mockResolvedValue(true);
-      // const result = await controller.createCategory(new CreateCategoryDto());
-      // expect(result).toBe(true);
+      const result = await controller.createCategory(new CreateCategoryDto());
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('update category', () => {
+    it('[Expect-success] Should call service to update category', async () => {
+      MockCategoryService.updateCategory.mockResolvedValue(true);
+      const result = await controller.updateCategory(
+        '2314',
+        new UpdateCategoryDto(),
+      );
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('get category by id', () => {
+    it('[Expect-success] Should call service to get category by id', async () => {
+      MockCategoryService.getCategoryById.mockResolvedValue(true);
+      const result = await controller.getCategoryById('2314');
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('get all category', () => {
+    it('[Expect-success] Should call service to get all category', async () => {
+      MockCategoryService.getAllCategories.mockResolvedValue(true);
+      const result = await controller.getAllCategory();
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('delete category', () => {
+    it('[Expect-success] Should call service to delete category', async () => {
+      MockCategoryService.deleteCategoryById.mockResolvedValue(true);
+      const result = await controller.deleteCategory('2343');
+      expect(result).toBe(true);
     });
   });
 });

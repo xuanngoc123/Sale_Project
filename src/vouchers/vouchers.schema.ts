@@ -30,6 +30,9 @@ export class Voucher {
 
   @Prop()
   updatedAt: Date;
+
+  @Prop({ default: false })
+  _delete: boolean;
 }
 
 export const VoucherSchema = SchemaFactory.createForClass(Voucher);

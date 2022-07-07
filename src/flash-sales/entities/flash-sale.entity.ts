@@ -1,13 +1,13 @@
 import { ObjectID } from '../../commons/commons.type';
 
 export interface IItemFlashSale {
-  productId: ObjectID;
+  itemId: ObjectID;
 
   name: string;
 
   quantity: number;
 
-  quantitySold: number;
+  quantitySold?: number;
 
   discount: number;
 }

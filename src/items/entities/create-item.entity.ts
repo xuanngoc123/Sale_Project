@@ -17,9 +17,9 @@ export interface ICreateItem {
 
   description: string;
 
-  isFlashSale: boolean;
-
   tag: string;
 
   categoryId: ObjectID;
+
+  categoryName: string;
 }

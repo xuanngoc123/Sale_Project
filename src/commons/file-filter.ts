@@ -5,11 +5,7 @@ export const fileFilter = (req, file, cb) => {
     file.mimetype === 'image/png' ||
     file.mimetype === 'image/jpg' ||
     file.mimetype === 'image/jpeg' ||
-    file.mimetype === 'image/svg' ||
-    file.mimetype === 'image/PNG' ||
-    file.mimetype === 'image/JPG' ||
-    file.mimetype === 'image/JPEG' ||
-    file.mimetype === 'image/SVG'
+    file.mimetype === 'image/svg'
   ) {
     return cb(null, true);
   }

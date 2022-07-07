@@ -14,6 +14,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { CategoriesModule } from './categories/categories.module';
 import { FileUploadModule } from './file-upload/file-upload.module';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
         },
       },
     }),
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRoot(`${process.env.MONGODB_URL}`),
     {

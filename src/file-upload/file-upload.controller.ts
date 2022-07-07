@@ -1,18 +1,14 @@
 import {
   Controller,
   Post,
-  Query,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import {
-  AnyFilesInterceptor,
-  FileFieldsInterceptor,
-} from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { fileFilter } from '../commons/file-filter';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { Roles } from '../auth/roles.decorator';
+import { Roles } from '../decorators/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { ROLE_ENUM } from '../users/users.constant';
 import { FileUploadService } from './file-upload.service';
@@ -40,7 +36,6 @@ export class FileUploadController {
       imageBaners?: Express.Multer.File[];
     },
   ) {
-    console.log(files);
     return this.fileUploadService.uploadFileCatetgory(files);
   }
 
@@ -56,7 +51,6 @@ export class FileUploadController {
       images?: Express.Multer.File[];
     },
   ) {
-    console.log(files);
     return this.fileUploadService.uploadFileItem(files);
   }
 }
