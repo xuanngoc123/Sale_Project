@@ -29,11 +29,15 @@ export class AuthService {
   }
 
   async login(user: any): Promise<any> {
+    console.log(user);
+
     const payload: PayloadJwt = {
       email: user.email,
       userName: user.userName,
       role: user.role,
       status: user.status,
+      address: user.address,
+      phoneNumber: user.phoneNumber,
     };
 
     return {

@@ -7,11 +7,8 @@ import {
   Post,
   Put,
   Query,
-  UploadedFiles,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
-import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../decorators/roles.decorator';
@@ -22,13 +19,13 @@ import { CategoriesService } from './categories.service';
 import { ICategory } from './entities/catetgory.entity';
 
 @ApiTags('Category')
-@Roles(ROLE_ENUM.ADMIN)
-@UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth('Authorization')
 @Controller('categories')
 export class CategoriesController {
   constructor(private caegoriesService: CategoriesService) {}
 
+  @Roles(ROLE_ENUM.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post()
   async createCategory(
     @Body() createCategoryDto: CreateCategoryDto,
@@ -36,16 +33,22 @@ export class CategoriesController {
     return this.caegoriesService.createCategory(createCategoryDto);
   }
 
-  @Get()
-  getCategoryById(@Query('id') id: string): Promise<ICategory> {
+  @Get(':id')
+  getCategoryById(@Param('id') id: string): Promise<ICategory> {
     return this.caegoriesService.getCategoryById(id);
   }
 
   @Get()
-  getAllCategory(): Promise<ICategory[]> {
-    return this.caegoriesService.getAllCategories();
+  getAllCategory(
+    @Query('limit') limit: number,
+    @Query('page') page: number,
+    @Query('sort') sort: string,
+  ): Promise<ICategory[]> {
+    return this.caegoriesService.getAllCategories(limit, page, sort);
   }
 
+  @Roles(ROLE_ENUM.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Put(':id')
   async updateCategory(
     @Param('id') id: string,
@@ -54,6 +57,8 @@ export class CategoriesController {
     return this.caegoriesService.updateCategory(updateCategoryDto, id);
   }
 
+  @Roles(ROLE_ENUM.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete()
   deleteCategory(@Query('id') id: string): Promise<any> {
     return this.caegoriesService.deleteCategoryById(id);

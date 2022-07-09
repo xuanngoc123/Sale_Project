@@ -20,17 +20,19 @@ import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 
 @ApiTags('Item')
-@Roles(ROLE_ENUM.ADMIN)
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('items')
 export class ItemsController {
   constructor(private itemsService: ItemsService) {}
 
+  @Roles(ROLE_ENUM.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post()
-  createItems(@Body() createItemDto: CreateItemDto): Promise<IItem> {
+  createItem(@Body() createItemDto: CreateItemDto): Promise<IItem> {
     return this.itemsService.createItem(createItemDto);
   }
 
+  @Roles(ROLE_ENUM.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Put(':id')
   updateItems(
     @Param('id') id: string,
@@ -39,16 +41,30 @@ export class ItemsController {
     return this.itemsService.updateItem(updateItemDto, id);
   }
 
-  @Get()
-  getItemById(@Query('id') id: string): Promise<IItem> {
+  @Get(':id')
+  getItemById(@Param('id') id: string): Promise<IItem> {
     return this.itemsService.getItemById(id);
   }
 
   @Get()
-  getAllItems(): Promise<IItem[]> {
-    return this.itemsService.getAllItems();
+  getItemsByCategory(
+    @Query('category') category: string,
+    @Query('tag') tag: string,
+    @Query('limit') limit: number,
+    @Query('page') page: number,
+    @Query('sort') sort: string,
+  ): Promise<IItem[]> {
+    return this.itemsService.getItemsByCategory(
+      category,
+      tag,
+      limit,
+      page,
+      sort,
+    );
   }
 
+  @Roles(ROLE_ENUM.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete()
   deleteItemById(@Query('id') id: string): Promise<any> {
     return this.itemsService.deleteItemById(id);

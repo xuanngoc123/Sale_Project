@@ -75,11 +75,13 @@ FlashSaleSchema.pre<FlashSaleModel>('save', async function (next) {
     uniqueItemId.push(itemId);
   }
 
-  const findFlashSale = await this.db
-    .collection('flashsales')
-    .findOne({ startTime: { $lt: Date.now() }, endTime: { $gt: Date.now() } });
-
-  console.log(findFlashSale);
+  const findFlashSale = await this.db.collection('flashsales').findOne({
+    endTime: { $gt: this.startTime },
+    _delete: false,
+  });
+  if (findFlashSale) {
+    throw new BadRequestException('flash sale is not over yet');
+  }
 
   next();
 });

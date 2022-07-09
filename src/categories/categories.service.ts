@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CategoryRepository } from './categories.repository';
 import { ICategory } from './entities/catetgory.entity';
 import { ICreateCategory } from './entities/create-category.entity';
@@ -24,12 +24,16 @@ export class CategoriesService {
     );
   }
 
-  async getAllCategories(): Promise<ICategory[]> {
-    return this.categoryRepository.find({});
+  async getAllCategories(limit, page, sort): Promise<ICategory[]> {
+    return this.categoryRepository.find({}, limit, page, sort);
   }
 
   async getCategoryById(id): Promise<ICategory> {
-    return this.categoryRepository.findOne({ _id: id });
+    const category = await this.categoryRepository.findOne({ _id: id });
+    if (!category) {
+      throw new NotFoundException();
+    }
+    return category;
   }
 
   async deleteCategoryById(id): Promise<any> {

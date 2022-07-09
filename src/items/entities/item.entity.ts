@@ -25,7 +25,13 @@ export interface IItem {
 
   categoryName: string;
 
-  createdAt?: Date;
+  createdAt: Date;
 
-  updatedAt?: Date;
+  updatedAt: Date;
+
+  _delete: boolean;
+
+  priceFlashSale?: number;
+
+  discount?: number;
 }

@@ -20,4 +20,6 @@ export interface IVoucher {
   createdAt: Date;
 
   updatedAt: Date;
+
+  _delete: boolean;
 }

@@ -11,4 +11,5 @@ export interface IUser {
   status?: string;
   createdAt: Date;
   updatedAt: Date;
+  _delete?: boolean;
 }

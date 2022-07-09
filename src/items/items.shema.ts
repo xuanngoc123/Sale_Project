@@ -10,7 +10,7 @@ export class Item {
   @Prop({ required: true, unique: true })
   name: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   barcode: string;
 
   @Prop({ required: true })
@@ -60,7 +60,7 @@ export interface ItemModel extends Document, ItemDto {}
 ItemSchema.pre<ItemModel>('save', async function (this, next) {
   const category = await this.db
     .collection('categories')
-    .findOne({ name: this.categoryName });
+    .findOne({ name: this.categoryName, _delete: false });
 
   if (!category) {
     throw new BadRequestException('Category does not exist');

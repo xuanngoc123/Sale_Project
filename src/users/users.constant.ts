@@ -3,7 +3,7 @@ export enum ROLE_ENUM {
   USER = 'USER',
 }
 
-export enum STATE_ENUM {
+export enum STATE_USER_ENUM {
   INACTIVE = 'INACTIVE',
   ACTIVE = 'ACTIVE',
   BANNED = 'BANNED',

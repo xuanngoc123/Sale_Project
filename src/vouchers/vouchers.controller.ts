@@ -20,13 +20,13 @@ import { IVoucher } from './entities/voucher.entity';
 import { VouchersService } from './vouchers.service';
 
 @ApiTags('Voucher')
-@Roles(ROLE_ENUM.ADMIN)
-@UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth('Authorization')
 @Controller('vouchers')
 export class VouchersController {
   constructor(private vouchersService: VouchersService) {}
 
+  @Roles(ROLE_ENUM.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post()
   async createVoucher(
     @Body() createVoucherDto: CreateVoucherDto,
@@ -34,6 +34,8 @@ export class VouchersController {
     return this.vouchersService.createVoucher(createVoucherDto);
   }
 
+  @Roles(ROLE_ENUM.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Put(':id')
   async updateVoucher(
     @Param('id') id: string,
@@ -42,11 +44,22 @@ export class VouchersController {
     return this.vouchersService.updateVoucher(id, updateVoucherDto);
   }
 
-  @Get()
-  getAllVoucher() {
-    return 1;
+  @Get(':id')
+  getVoucherById(@Param('id') id: string): Promise<IVoucher> {
+    return this.vouchersService.getVoucherById(id);
   }
 
+  @Get()
+  getAllVoucher(
+    @Query('limit') limit: number,
+    @Query('page') page: number,
+    @Query('sort') sort: string,
+  ): Promise<IVoucher[]> {
+    return this.vouchersService.getAllVoucher(limit, page, sort);
+  }
+
+  @Roles(ROLE_ENUM.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete()
   deteteVoucher(@Query('id') id: string) {
     return this.vouchersService.deleteVoucher(id);

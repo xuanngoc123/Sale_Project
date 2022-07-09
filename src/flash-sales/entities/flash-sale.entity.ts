@@ -26,4 +26,6 @@ export interface IFlashSale {
   createdAt: Date;
 
   updatedAt: Date;
+
+  _delete: boolean;
 }

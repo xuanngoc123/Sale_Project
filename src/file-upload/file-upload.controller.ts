@@ -12,7 +12,9 @@ import { Roles } from '../decorators/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { ROLE_ENUM } from '../users/users.constant';
 import { FileUploadService } from './file-upload.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Upload File')
 @Roles(ROLE_ENUM.ADMIN)
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('file-upload')

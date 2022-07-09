@@ -11,4 +11,5 @@ export interface ICategory {
   priority: number;
   createdAt: Date;
   updatedAt: Date;
+  _delete: boolean;
 }

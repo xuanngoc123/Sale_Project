@@ -22,6 +22,18 @@ export class VouchersService {
     );
   }
 
+  getVoucherById(id: string): Promise<IVoucher> {
+    return this.voucherRepository.findOne({ _id: id });
+  }
+
+  getAllVoucher(
+    limit: number,
+    page: number,
+    sort: string,
+  ): Promise<IVoucher[]> {
+    return this.voucherRepository.find({}, limit, page, sort);
+  }
+
   deleteVoucher(id: string) {
     return this.voucherRepository.deleteOne({ _id: id });
   }

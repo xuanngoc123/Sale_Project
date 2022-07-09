@@ -1,7 +1,6 @@
-import { BadRequestException, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { CategoriesModule } from 'src/categories/categories.module';
-import { CategoryRepository } from 'src/categories/categories.repository';
+import { FlashSalesModule } from '../flash-sales/flash-sales.module';
 import { ItemsController } from './items.controller';
 import { ItemRepository } from './items.repository';
 import { ItemsService } from './items.service';
@@ -10,6 +9,7 @@ import { Item, ItemSchema } from './items.shema';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Item.name, schema: ItemSchema }]),
+    FlashSalesModule,
   ],
   controllers: [ItemsController],
   providers: [ItemsService, ItemRepository],
