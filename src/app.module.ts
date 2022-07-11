@@ -7,7 +7,7 @@ import { ItemsModule } from './items/items.module';
 import { VouchersModule } from './vouchers/vouchers.module';
 import { FlashSalesModule } from './flash-sales/flash-sales.module';
 import { OrdersModule } from './orders/orders.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MailsModule } from './mails/mails.module';
 import { JwtModule } from '@nestjs/jwt';
@@ -15,6 +15,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { FileUploadModule } from './file-upload/file-upload.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ScheduleModule } from '@nestjs/schedule';
+import { configuration } from './config/configuration';
 
 @Module({
   imports: [
@@ -31,12 +32,18 @@ import { ScheduleModule } from '@nestjs/schedule';
       },
     }),
     ScheduleModule.forRoot(),
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      envFilePath: `${process.cwd()}/src/config/env/${
+        process.env.NODE_ENV
+      }.env`,
+      load: [configuration],
+      isGlobal: true,
+    }),
     MongooseModule.forRoot(`${process.env.MONGODB_URL}`),
     {
       ...JwtModule.register({
         secret: process.env.ACCESS_TOKEN_KEY,
-        signOptions: { expiresIn: '3600s' },
+        signOptions: { expiresIn: `${process.env.TIME_EXPIRE_TOKEN}` },
       }),
       global: true,
     },

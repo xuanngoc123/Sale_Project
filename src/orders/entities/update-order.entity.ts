@@ -1,3 +1,4 @@
+import { STATUS_ORDER_ENUM } from '../orders.constant';
 import { IItemOrder, IUserInfo, IVoucherInfo } from './order.entity';
 
 export interface IUpdateOrder {
@@ -16,4 +17,8 @@ export interface IUpdateOrder {
   voucherInfo?: IVoucherInfo;
 
   userInfo?: IUserInfo;
+}
+
+export interface ICancelOrder {
+  status: STATUS_ORDER_ENUM;
 }

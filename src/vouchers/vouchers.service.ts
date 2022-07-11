@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ICreateVoucher } from './entities/create-voucher.entity';
 import { IUpdateVoucher } from './entities/update-voucher.entity';
 import { IVoucher } from './entities/voucher.entity';
@@ -22,8 +22,17 @@ export class VouchersService {
     );
   }
 
-  getVoucherById(id: string): Promise<IVoucher> {
-    return this.voucherRepository.findOne({ _id: id });
+  async getVoucherById(id: string): Promise<IVoucher> {
+    const now = new Date().toISOString();
+    const voucher: IVoucher = await this.voucherRepository.findOne({
+      _id: id,
+      startTime: { $lt: now },
+      endTime: { $gt: now },
+    });
+    if (!voucher) {
+      throw new NotFoundException();
+    }
+    return voucher;
   }
 
   getAllVoucher(
@@ -31,10 +40,23 @@ export class VouchersService {
     page: number,
     sort: string,
   ): Promise<IVoucher[]> {
-    return this.voucherRepository.find({}, limit, page, sort);
+    const now = new Date().toISOString();
+    return this.voucherRepository.find(
+      { startTime: { $lt: now }, endTime: { $gt: now } },
+      limit,
+      page,
+      sort,
+    );
   }
 
   deleteVoucher(id: string) {
     return this.voucherRepository.deleteOne({ _id: id });
+  }
+
+  updateQuantity(id, quantity: number) {
+    return this.voucherRepository.findOneAndUpdateQuantity(
+      { _id: id },
+      { $inc: { quantity: quantity, quantityUsed: -quantity } },
+    );
   }
 }

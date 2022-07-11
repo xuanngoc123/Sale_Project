@@ -100,7 +100,14 @@ export class ItemsService {
     return itemReturn;
   }
 
-  async deleteItemById(id: string) {
+  deleteItemById(id: string) {
     return this.itemRepository.deleteOne({ _id: id });
+  }
+
+  updateQuantity(id, quantity: number) {
+    return this.itemRepository.findOneAndUpdateQuantity(
+      { _id: id },
+      { $inc: { quantity: quantity, quantitySold: -quantity } },
+    );
   }
 }

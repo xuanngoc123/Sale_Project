@@ -9,7 +9,7 @@ export type OrderDocument = Order & Document;
 @Schema({ _id: false })
 class ItemOrder extends Document {
   @Prop({ required: true, type: String })
-  productId: ObjectID;
+  itemId: ObjectID;
 
   @Prop({ required: true })
   name: string;
@@ -33,7 +33,7 @@ class ItemOrder extends Document {
   categoryName: string;
 
   @Prop({ required: true, type: String })
-  caetgoryId: ObjectID;
+  categoryId: ObjectID;
 }
 const ItemOrderSchema = SchemaFactory.createForClass(ItemOrder);
 
@@ -45,10 +45,10 @@ class UserInfo extends Document {
   @Prop({ required: true })
   userName: string;
 
-  @Prop({ required: true })
+  @Prop()
   address: string | null;
 
-  @Prop({ required: true })
+  @Prop()
   phoneNumber: string | null;
 }
 const UserInfoSchema = SchemaFactory.createForClass(UserInfo);
@@ -89,7 +89,7 @@ export class Order {
   @Prop({ enum: STATUS_ORDER_ENUM, default: STATUS_ORDER_ENUM.COMFIRM })
   status: string;
 
-  @Prop({ required: true, type: VoucherInfoSchema, default: null })
+  @Prop({ type: VoucherInfoSchema, default: null })
   voucherInfo: VoucherInfo;
 
   @Prop({ required: true, type: UserInfoSchema })

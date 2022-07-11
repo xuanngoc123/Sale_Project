@@ -14,7 +14,7 @@ export class EmailDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsEmail()
-  username: string;
+  email: string;
 }
 export class PassDto {
   @ApiProperty()

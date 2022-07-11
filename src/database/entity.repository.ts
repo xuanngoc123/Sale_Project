@@ -57,6 +57,17 @@ export abstract class EntityRepository<T extends Document> {
     return result.save();
   }
 
+  async findOneAndUpdateQuantity(
+    entityFilterQuery: FilterQuery<T>,
+    updateEntityData: UpdateQuery<unknown>,
+  ): Promise<T | null | any> {
+    return this.entityModel.findOneAndUpdate(
+      { ...entityFilterQuery, _delete: false },
+      updateEntityData,
+      { new: true },
+    );
+  }
+
   async deleteOne(entityFilterQuery: FilterQuery<T>): Promise<T | null | any> {
     const find = await this.findOne(entityFilterQuery);
     if (!find) {

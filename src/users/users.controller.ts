@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ApiInternalServerErrorResponse, ApiTags } from '@nestjs/swagger';
@@ -19,6 +20,9 @@ import { ROLE_ENUM } from './users.constant';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
 import { IUser } from './entities/users.entity';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { Request } from 'express';
+import { EmailDto } from '../auth/auth.dto';
 @ApiTags('User')
 @ApiInternalServerErrorResponse({
   description: 'Internal Server Error',
@@ -36,6 +40,21 @@ export class UsersController {
   @Put('verify')
   verifyEmail(@Query('token') token: string): Promise<IUser> {
     return this.userService.verifyEmail(token);
+  }
+
+  @Roles(ROLE_ENUM.USER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Put('info')
+  updateInfo(
+    @Req() req: Request,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<IUser> {
+    return this.userService.updateInfo(updateUserDto, req);
+  }
+
+  @Post('resend-email')
+  resendLinkActive(@Body() email: EmailDto) {
+    return this.userService.resendEmail(email.email);
   }
 
   @Roles(ROLE_ENUM.USER)

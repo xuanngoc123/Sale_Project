@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsNotEmpty, ValidateNested } from 'class-validator';
+import { IsNotEmpty, Max, Min, ValidateNested } from 'class-validator';
 import {
   IsLongerThan,
   IsShorterThan,
@@ -22,7 +22,9 @@ export class ItemFlashSaleDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  discount: 0;
+  @Min(0)
+  @Max(1)
+  discount: number;
 }
 
 export class CreateFlashSaleDto {

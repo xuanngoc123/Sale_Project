@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { UserRepository } from './users.repository';
 import * as bcrypt from 'bcrypt';
 import { ROLE_ENUM, STATE_USER_ENUM } from './users.constant';
@@ -9,6 +13,8 @@ import { UserDocument } from './users.schema';
 import { JwtService } from '@nestjs/jwt';
 import { ICreateUser } from './entities/create-user.entity';
 import { IUser } from './entities/users.entity';
+import { IUpdateUser } from './entities/update-user.entity';
+import { Request } from 'express';
 @Injectable()
 export class UsersService {
   constructor(
@@ -30,9 +36,9 @@ export class UsersService {
 
     const createUser = await this.userRepository.create(createUserData);
     const activeToken = this.jwtService.sign({
-      role: ROLE_ENUM.USER,
+      // role: ROLE_ENUM.USER,
       email: createUser.email,
-      userName: createUser.userName,
+      // userName: createUser.userName,
     });
     const html = `Click to active: <a href="${process.env.FROENT_HOST}?token=${activeToken}">${process.env.FROENT_HOST}?token=${activeToken}</a>`;
     const subject = 'VERIFY EMAIL';
@@ -66,6 +72,33 @@ export class UsersService {
       createdAt,
       updatedAt,
     };
+  }
+
+  async updateInfo(updateUserData: IUpdateUser, req: Request): Promise<IUser> {
+    const updateInfo: IUser = await this.userRepository.findOneAndUpdate(
+      { _id: req['user']['_id'] },
+      updateUserData,
+    );
+
+    const { _id, userName, email, phoneNumber, address, createdAt, updatedAt } =
+      updateInfo;
+    return { _id, userName, email, phoneNumber, address, createdAt, updatedAt };
+  }
+
+  async resendEmail(email) {
+    const user: IUser = await this.userRepository.findOne({ email: email });
+    if (user.status === STATE_USER_ENUM.BANNED) {
+      throw new BadRequestException('Account banned');
+    }
+    if (user.status === STATE_USER_ENUM.ACTIVE) {
+      throw new BadRequestException('Account actived');
+    }
+    const activeToken = this.jwtService.sign({
+      email: email,
+    });
+    const html = `Click to active: <a href="${process.env.FROENT_HOST}?token=${activeToken}">${process.env.FROENT_HOST}?token=${activeToken}</a>`;
+    const subject = 'VERIFY EMAIL';
+    return this.mailsService.sendMail(user, html, subject);
   }
 
   async deleteUser(id: ObjectID): Promise<void> {

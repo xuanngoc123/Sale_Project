@@ -17,6 +17,8 @@ export interface IItem {
 
   weight: number;
 
+  avatar: string;
+
   images: [string];
 
   description: string;

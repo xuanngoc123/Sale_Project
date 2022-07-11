@@ -13,6 +13,10 @@ export interface IUpdateItem {
 
   weight?: number;
 
+  avatar?: string;
+
+  images?: string[];
+
   description?: string;
 
   tag?: string;

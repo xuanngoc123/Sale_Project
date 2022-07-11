@@ -34,8 +34,8 @@ export class FileUploadController {
   uploadFileCategory(
     @UploadedFiles()
     files: {
-      imageCategory?: Express.Multer.File;
-      imageBaners?: Express.Multer.File[];
+      imageCategory: Express.Multer.File;
+      imageBaners: Express.Multer.File[];
     },
   ) {
     return this.fileUploadService.uploadFileCatetgory(files);
@@ -43,14 +43,19 @@ export class FileUploadController {
 
   @Post('item')
   @UseInterceptors(
-    FileFieldsInterceptor([{ name: 'images', maxCount: 10 }], {
-      fileFilter: fileFilter,
-    }),
+    FileFieldsInterceptor(
+      [
+        { name: 'imageAvatar', maxCount: 1 },
+        { name: 'imageDetail', maxCount: 10 },
+      ],
+      { fileFilter: fileFilter },
+    ),
   )
   uploadFileItem(
     @UploadedFiles()
     files: {
-      images?: Express.Multer.File[];
+      imageAvatar: Express.Multer.File;
+      imageDetail: Express.Multer.File[];
     },
   ) {
     return this.fileUploadService.uploadFileItem(files);

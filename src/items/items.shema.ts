@@ -29,6 +29,9 @@ export class Item {
   weight: number;
 
   @Prop({ required: true })
+  avatar: string;
+
+  @Prop({ required: true })
   images: [string];
 
   @Prop({ required: true })

@@ -1,13 +1,22 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsEnum, IsNotEmpty, Max, Min, ValidateNested } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  max,
+  Max,
+  min,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 import { ObjectID } from '../../commons/commons.type';
 import { STATUS_ORDER_ENUM } from '../orders.constant';
 
 export class ItemOrderDto {
   @ApiProperty()
   @IsNotEmpty()
-  productId: ObjectID;
+  itemId: ObjectID;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -31,8 +40,8 @@ export class ItemOrderDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  @Min(0)
-  @Max(1)
+  // @Min(0)
+  // @Max(1)
   discount: number | null;
 
   @ApiProperty()
@@ -41,7 +50,7 @@ export class ItemOrderDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  caetgoryId: ObjectID;
+  categoryId: ObjectID;
 }
 
 export class UserInfoDto {
@@ -87,12 +96,12 @@ export class CreateOrderDto {
   @Type(() => ItemOrderDto)
   listItems: [ItemOrderDto];
 
-  @ApiProperty()
-  @IsNotEmpty()
+  // @ApiProperty()
+  // @IsNotEmpty()
   totalPrice: number;
 
-  @ApiProperty()
-  @IsNotEmpty()
+  // @ApiProperty()
+  // @IsNotEmpty()
   originalPrice: number;
 
   @ApiProperty()
@@ -103,19 +112,19 @@ export class CreateOrderDto {
   @IsNotEmpty()
   addressReceive: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsEnum(STATUS_ORDER_ENUM)
+  // @ApiProperty()
+  // @IsNotEmpty()
+  // @IsEnum(STATUS_ORDER_ENUM)
   status: string;
 
-  @ApiProperty({ type: UserInfoDto })
-  @IsNotEmpty()
-  @ValidateNested({ each: true })
-  @Type(() => UserInfoDto)
+  // @ApiProperty({ type: UserInfoDto })
+  // @IsNotEmpty()
+  // @ValidateNested({ each: true })
+  // @Type(() => UserInfoDto)
   userInfo: UserInfoDto;
 
-  @ApiProperty({ type: VoucherInfoDto })
-  @IsNotEmpty()
+  @ApiPropertyOptional({ type: VoucherInfoDto })
+  // @IsNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => VoucherInfoDto)
   voucherInfo: VoucherInfoDto;

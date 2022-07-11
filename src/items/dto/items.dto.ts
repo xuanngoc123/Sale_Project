@@ -15,6 +15,8 @@ export class ItemDto {
 
   weight: number;
 
+  avatar: string;
+
   images: [string];
 
   description: string;

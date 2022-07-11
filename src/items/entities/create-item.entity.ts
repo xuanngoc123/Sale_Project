@@ -15,6 +15,10 @@ export interface ICreateItem {
 
   weight: number;
 
+  avatar: string;
+
+  images: string[];
+
   description: string;
 
   tag: string;

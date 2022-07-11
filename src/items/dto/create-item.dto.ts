@@ -21,6 +21,10 @@ export class CreateItemDto {
 
   @ApiProperty()
   @IsNotEmpty()
+  avatar: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
   images: string[];
 
   @ApiProperty()

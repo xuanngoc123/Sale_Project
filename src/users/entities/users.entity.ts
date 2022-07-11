@@ -1,7 +1,7 @@
 import { ObjectID } from '../../commons/commons.type';
 
 export interface IUser {
-  _id: ObjectID;
+  _id?: ObjectID;
   userName: string;
   password?: string;
   email?: string;

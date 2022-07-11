@@ -13,5 +13,6 @@ import { Item, ItemSchema } from './items.shema';
   ],
   controllers: [ItemsController],
   providers: [ItemsService, ItemRepository],
+  exports: [ItemsService],
 })
 export class ItemsModule {}

@@ -29,7 +29,6 @@ export class FlashSalesService {
       const allUser = await this.usersService.findAll({
         status: STATE_USER_ENUM.ACTIVE,
       });
-      console.log(allUser);
 
       const allPromise = [];
       for (let i = 0, length = allUser.length; i < length; i++) {
@@ -41,7 +40,6 @@ export class FlashSalesService {
           ),
         );
       }
-      console.log(allPromise.length);
 
       Promise.all(allPromise);
     });
@@ -61,7 +59,12 @@ export class FlashSalesService {
   }
 
   async getFlashSaleById(id: string): Promise<IFlashSale> {
-    const flashSale = await this.flashSaleRepository.findOne({ _id: id });
+    const now = new Date().toISOString();
+    const flashSale = await this.flashSaleRepository.findOne({
+      _id: id,
+      startTime: { $lt: now },
+      endTime: { $gt: now },
+    });
     if (!flashSale) {
       throw new NotFoundException();
     }
@@ -73,7 +76,14 @@ export class FlashSalesService {
     page: number,
     sort: string,
   ): Promise<IFlashSale[]> {
-    return this.flashSaleRepository.find({}, limit, page, sort);
+    const now = new Date().toISOString();
+
+    return this.flashSaleRepository.find(
+      { startTime: { $lt: now }, endTime: { $gt: now } },
+      limit,
+      page,
+      sort,
+    );
   }
 
   deleteFlashSale(id): Promise<any> {
@@ -85,7 +95,19 @@ export class FlashSalesService {
     return this.flashSaleRepository.findOne({
       startTime: { $lt: now },
       endTime: { $gt: now },
-      _delete: false,
     });
+  }
+
+  updateQuantity(quantity: number) {
+    const now = new Date().toISOString();
+    return this.flashSaleRepository.findOneAndUpdateQuantity(
+      { startTime: { $lt: now }, endTime: { $gt: now } },
+      {
+        $inc: {
+          'listItems.quantity': quantity,
+          'listItems.quantitySold': -quantity,
+        },
+      },
+    );
   }
 }

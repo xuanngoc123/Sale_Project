@@ -1,9 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { PayloadJwt } from '../commons/commons.type';
 import { EmailDto, PassDto } from './auth.dto';
 import { UsersService } from 'src/users/users.service';
+import { STATE_USER_ENUM } from 'src/users/users.constant';
 @Injectable()
 export class AuthService {
   constructor(
@@ -16,10 +21,20 @@ export class AuthService {
       email: email,
     });
     if (!user) {
-      return null;
+      throw new BadRequestException('Email not found');
     }
-    const checkPassword = await bcrypt.compare(password, user.password);
 
+    if (user.status === STATE_USER_ENUM.INACTIVE) {
+      throw new ForbiddenException('Account not actived');
+    }
+    if (user.status === STATE_USER_ENUM.BANNED) {
+      throw new ForbiddenException('Account banned');
+    }
+
+    const checkPassword = await bcrypt.compare(password, user.password);
+    if (checkPassword === false) {
+      throw new BadRequestException('Password invalid');
+    }
     if (user && checkPassword === true) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = user['_doc'];
@@ -29,9 +44,8 @@ export class AuthService {
   }
 
   async login(user: any): Promise<any> {
-    console.log(user);
-
     const payload: PayloadJwt = {
+      _id: user._id,
       email: user.email,
       userName: user.userName,
       role: user.role,

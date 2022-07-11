@@ -1,7 +1,7 @@
 import { ObjectID } from '../../commons/commons.type';
 
 export interface IItemOrder {
-  productId: ObjectID;
+  itemId: ObjectID;
 
   name: string;
 
@@ -17,7 +17,7 @@ export interface IItemOrder {
 
   categoryName: string;
 
-  caetgoryId: ObjectID;
+  categoryId: ObjectID;
 }
 
 export interface IUserInfo {

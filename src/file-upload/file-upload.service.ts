@@ -62,10 +62,20 @@ export class FileUploadService {
 
   async uploadFileItem(files) {
     let result = {};
+
+    const uploadImageAvatar: ResponseUploadFile = await this.uploadFile(
+      files.imageAvatar[0],
+      FOLDER_UPLOAD_ENUM.ITEM,
+    );
+    result = {
+      ...result,
+      keyOfImageAvatar: uploadImageAvatar.key,
+    };
+
     const keyOfImageItems: string[] = [];
-    for (let i = 0; i < files.images.length; i++) {
+    for (let i = 0; i < files.imageDetail.length; i++) {
       const uploadImageItem: ResponseUploadFile = await this.uploadFile(
-        files.images[0],
+        files.imageDetail[i],
         FOLDER_UPLOAD_ENUM.ITEM,
       );
 
