@@ -71,23 +71,9 @@ export class FlashSalesService {
     return flashSale;
   }
 
-  getAllFlashSaleByQuery(
-    limit: number,
-    page: number,
-    sort: string,
-  ): Promise<IFlashSale[]> {
-    const now = new Date().toISOString();
-
-    return this.flashSaleRepository.find(
-      { startTime: { $lt: now }, endTime: { $gt: now } },
-      limit,
-      page,
-      sort,
-    );
-  }
-
-  deleteFlashSale(id): Promise<any> {
-    return this.flashSaleRepository.deleteOne({ _id: id });
+  async deleteFlashSale(id): Promise<any> {
+    await this.flashSaleRepository.deleteOne({ _id: id });
+    return;
   }
 
   getFlashSaleNow(): Promise<IFlashSale> {

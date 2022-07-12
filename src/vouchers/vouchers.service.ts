@@ -49,8 +49,9 @@ export class VouchersService {
     );
   }
 
-  deleteVoucher(id: string) {
-    return this.voucherRepository.deleteOne({ _id: id });
+  async deleteVoucher(id: string) {
+    await this.voucherRepository.deleteOne({ _id: id });
+    return;
   }
 
   updateQuantity(id, quantity: number) {

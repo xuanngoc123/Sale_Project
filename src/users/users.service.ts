@@ -2,10 +2,12 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { UserRepository } from './users.repository';
 import * as bcrypt from 'bcrypt';
-import { ROLE_ENUM, STATE_USER_ENUM } from './users.constant';
+import { STATE_USER_ENUM } from './users.constant';
 import { ObjectID, PayloadJwt } from '../commons/commons.type';
 import { MailsService } from '../mails/mails.service';
 import { FilterQuery } from 'mongoose';
@@ -36,9 +38,7 @@ export class UsersService {
 
     const createUser = await this.userRepository.create(createUserData);
     const activeToken = this.jwtService.sign({
-      // role: ROLE_ENUM.USER,
       email: createUser.email,
-      // userName: createUser.userName,
     });
     const html = `Click to active: <a href="${process.env.FROENT_HOST}?token=${activeToken}">${process.env.FROENT_HOST}?token=${activeToken}</a>`;
     const subject = 'VERIFY EMAIL';
@@ -56,22 +56,26 @@ export class UsersService {
     };
   }
   async verifyEmail(token: string) {
-    const data: PayloadJwt = this.jwtService.verify(token);
-    const userAfterUpdate = await this.userRepository.findOneAndUpdate(
-      { email: data.email },
-      { status: STATE_USER_ENUM.ACTIVE },
-    );
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { _id, userName, status, createdAt, updatedAt, ...hiden } =
-      userAfterUpdate;
+    try {
+      const data: PayloadJwt = this.jwtService.verify(token);
+      const userAfterUpdate = await this.userRepository.findOneAndUpdate(
+        { email: data.email },
+        { status: STATE_USER_ENUM.ACTIVE },
+      );
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { _id, userName, status, createdAt, updatedAt, ...hiden } =
+        userAfterUpdate;
 
-    return {
-      _id,
-      userName,
-      status,
-      createdAt,
-      updatedAt,
-    };
+      return {
+        _id,
+        userName,
+        status,
+        createdAt,
+        updatedAt,
+      };
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 
   async updateInfo(updateUserData: IUpdateUser, req: Request): Promise<IUser> {
@@ -86,23 +90,32 @@ export class UsersService {
   }
 
   async resendEmail(email) {
-    const user: IUser = await this.userRepository.findOne({ email: email });
-    if (user.status === STATE_USER_ENUM.BANNED) {
-      throw new BadRequestException('Account banned');
+    try {
+      const user: IUser = await this.userRepository.findOne({ email: email });
+      if (!user) {
+        throw new NotFoundException('Email not found');
+      }
+      if (user.status === STATE_USER_ENUM.BANNED) {
+        throw new BadRequestException('Account banned');
+      }
+      if (user.status === STATE_USER_ENUM.ACTIVE) {
+        throw new BadRequestException('Account actived');
+      }
+      const activeToken = this.jwtService.sign({
+        email: email,
+      });
+      const html = `Click to active: <a href="${process.env.FROENT_HOST}?token=${activeToken}">${process.env.FROENT_HOST}?token=${activeToken}</a>`;
+      const subject = 'VERIFY EMAIL';
+      await this.mailsService.sendMail(user, html, subject);
+      return 'Send mail success';
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
     }
-    if (user.status === STATE_USER_ENUM.ACTIVE) {
-      throw new BadRequestException('Account actived');
-    }
-    const activeToken = this.jwtService.sign({
-      email: email,
-    });
-    const html = `Click to active: <a href="${process.env.FROENT_HOST}?token=${activeToken}">${process.env.FROENT_HOST}?token=${activeToken}</a>`;
-    const subject = 'VERIFY EMAIL';
-    return this.mailsService.sendMail(user, html, subject);
   }
 
   async deleteUser(id: ObjectID): Promise<void> {
     await this.userRepository.deleteOne({ _id: id });
+    return;
   }
 
   findOne(filterQuery: FilterQuery<UserDocument>) {

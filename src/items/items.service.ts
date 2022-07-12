@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import mongoose from 'mongoose';
 import { FlashSalesService } from 'src/flash-sales/flash-sales.service';
 import { ICreateItem } from './entities/create-item.entity';
@@ -14,14 +19,22 @@ export class ItemsService {
   ) {}
 
   async createItem(createItemData: ICreateItem): Promise<IItem> {
-    return this.itemRepository.create(createItemData);
+    try {
+      return this.itemRepository.create(createItemData);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   async updateItem(updateItemDto: IUpdateItem, id: string): Promise<IItem> {
-    return this.itemRepository.findOneAndUpdate({ _id: id }, updateItemDto);
+    try {
+      return this.itemRepository.findOneAndUpdate({ _id: id }, updateItemDto);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 
-  async getItemsByCategory(
+  async getListItem(
     category: string,
     tag: string,
     limit: number,

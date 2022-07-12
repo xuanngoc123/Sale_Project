@@ -7,7 +7,7 @@ import { ItemsModule } from './items/items.module';
 import { VouchersModule } from './vouchers/vouchers.module';
 import { FlashSalesModule } from './flash-sales/flash-sales.module';
 import { OrdersModule } from './orders/orders.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MailsModule } from './mails/mails.module';
 import { JwtModule } from '@nestjs/jwt';
@@ -19,6 +19,13 @@ import { configuration } from './config/configuration';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      envFilePath: `${process.cwd()}/src/config/env/${
+        process.env.NODE_ENV
+      }.env`,
+      load: [configuration],
+      isGlobal: true,
+    }),
     MailerModule.forRoot({
       transport: {
         host: process.env.MAIL_SERVER,
@@ -32,13 +39,6 @@ import { configuration } from './config/configuration';
       },
     }),
     ScheduleModule.forRoot(),
-    ConfigModule.forRoot({
-      envFilePath: `${process.cwd()}/src/config/env/${
-        process.env.NODE_ENV
-      }.env`,
-      load: [configuration],
-      isGlobal: true,
-    }),
     MongooseModule.forRoot(`${process.env.MONGODB_URL}`),
     {
       ...JwtModule.register({
@@ -59,6 +59,5 @@ import { configuration } from './config/configuration';
   ],
   controllers: [AppController],
   providers: [AppService],
-  // exports: [JwtModule],
 })
 export class AppModule {}

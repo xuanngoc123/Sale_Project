@@ -10,7 +10,6 @@ import { ItemsService } from 'src/items/items.service';
 import { VouchersService } from 'src/vouchers/vouchers.service';
 import { ICreateOrder } from './entities/create-order.entity';
 import { IOrder } from './entities/order.entity';
-import { ICancelOrder } from './entities/update-order.entity';
 import { STATUS_ORDER_ENUM } from './orders.constant';
 import { OrderRepository } from './orders.repository';
 

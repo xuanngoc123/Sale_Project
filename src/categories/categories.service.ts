@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CategoryRepository } from './categories.repository';
 import { ICategory } from './entities/catetgory.entity';
 import { ICreateCategory } from './entities/create-category.entity';
@@ -11,17 +15,29 @@ export class CategoriesService {
   async createCategory(
     createCategoryData: ICreateCategory,
   ): Promise<ICategory> {
-    return this.categoryRepository.create(createCategoryData);
+    try {
+      const createCategory = await this.categoryRepository.create(
+        createCategoryData,
+      );
+      return createCategory;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 
   async updateCategory(
     updateCategoryData: IUpdateCategory,
     id: string,
   ): Promise<ICategory> {
-    return this.categoryRepository.findOneAndUpdate(
-      { _id: id },
-      updateCategoryData,
-    );
+    try {
+      const updateCategory = await this.categoryRepository.findOneAndUpdate(
+        { _id: id },
+        updateCategoryData,
+      );
+      return updateCategory;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 
   async getAllCategories(limit, page, sort): Promise<ICategory[]> {
@@ -37,6 +53,7 @@ export class CategoriesService {
   }
 
   async deleteCategoryById(id): Promise<any> {
-    return this.categoryRepository.deleteOne({ _id: id });
+    await this.categoryRepository.deleteOne({ _id: id });
+    return;
   }
 }

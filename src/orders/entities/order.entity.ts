@@ -11,6 +11,8 @@ export interface IItemOrder {
 
   price: number;
 
+  avatar: string;
+
   priceFlashSale: number | null;
 
   discount: number | null;

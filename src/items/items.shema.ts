@@ -19,10 +19,14 @@ export class Item {
   @Prop({ required: true })
   price: number;
 
-  @Prop({ required: true })
+  @Prop({
+    required: true,
+    isInteger: true,
+    min: 0,
+  })
   quantity: number;
 
-  @Prop({ required: true })
+  @Prop({ required: true, isInteger: true, default: 0, min: 0 })
   quantitySold: number;
 
   @Prop({ required: true })

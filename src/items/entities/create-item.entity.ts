@@ -11,8 +11,6 @@ export interface ICreateItem {
 
   quantity: number;
 
-  quantitySold: number;
-
   weight: number;
 
   avatar: string;

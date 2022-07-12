@@ -15,6 +15,18 @@ class ItemFlashSale extends Document {
   name: string;
 
   @Prop({ required: true })
+  price: number;
+
+  @Prop({ required: true })
+  avatar: string;
+
+  @Prop({ required: true })
+  categoryName: string;
+
+  @Prop({ required: true })
+  categoryId: string;
+
+  @Prop({ required: true, min: 0 })
   quantity: number;
 
   @Prop({ required: true, default: 0 })
@@ -64,6 +76,14 @@ FlashSaleSchema.pre<FlashSaleModel>('save', async function (next) {
     const name = this.listItems[i].name;
     const itemId = this.listItems[i].itemId;
 
+    // const item = await this.db
+    //   .collection('items')
+    //   .findOne({ _id: itemId, _delete: false });
+
+    // if (this.listItems[i].quantity > item.quantity) {
+    //   throw new BadRequestException(`Quantity of ${name} invalid`);
+    // }
+
     if (uniqueName.indexOf(name) > -1) {
       throw new BadRequestException('Duplicate name in itemLists');
     }
@@ -75,12 +95,17 @@ FlashSaleSchema.pre<FlashSaleModel>('save', async function (next) {
     uniqueItemId.push(itemId);
   }
 
-  const findFlashSale = await this.db.collection('flashsales').findOne({
-    endTime: { $gt: this.startTime },
-    _delete: false,
-  });
-  if (findFlashSale) {
-    throw new BadRequestException('flash sale is not over yet');
+  const data = this.getChanges();
+
+  if (data['$set'].startTime) {
+    const findFlashSale = await this.db.collection('flashsales').findOne({
+      endTime: { $gt: this.startTime },
+      _delete: false,
+    });
+
+    if (findFlashSale) {
+      throw new BadRequestException('flash sale is not over yet');
+    }
   }
 
   next();

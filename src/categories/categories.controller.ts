@@ -9,7 +9,18 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiInternalServerErrorResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../decorators/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
@@ -17,13 +28,30 @@ import { ROLE_ENUM } from '../users/users.constant';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/categories.dto';
 import { CategoriesService } from './categories.service';
 import { ICategory } from './entities/catetgory.entity';
+import { CategoryResponse } from './dto/swagger.dto';
+import {
+  BadRequestResponse,
+  ForbiddenResponse,
+  InternalServerErrorResponse,
+  NotFoundResponse,
+  UnauthorizedResponse,
+} from '../swagger/value-example';
 
 @ApiTags('Category')
-@ApiBearerAuth('Authorization')
+@ApiInternalServerErrorResponse({
+  description: 'Internal Server Error',
+  type: InternalServerErrorResponse,
+})
 @Controller('categories')
 export class CategoriesController {
   constructor(private caegoriesService: CategoriesService) {}
 
+  //CREATE CATEGORY---------------------------------------------
+  @ApiBearerAuth('Authorization')
+  @ApiCreatedResponse({ type: CategoryResponse })
+  @ApiBadRequestResponse({ type: BadRequestResponse })
+  @ApiUnauthorizedResponse({ type: UnauthorizedResponse })
+  @ApiForbiddenResponse({ type: ForbiddenResponse })
   @Roles(ROLE_ENUM.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Post()
@@ -33,11 +61,16 @@ export class CategoriesController {
     return this.caegoriesService.createCategory(createCategoryDto);
   }
 
+  //GET CATEGORY BY ID---------------------------------------
+  @ApiNotFoundResponse({ type: NotFoundResponse })
+  @ApiOkResponse({ type: CategoryResponse })
   @Get(':id')
   getCategoryById(@Param('id') id: string): Promise<ICategory> {
     return this.caegoriesService.getCategoryById(id);
   }
 
+  //GET ALL CATEGORIES---------------------------------------
+  @ApiOkResponse({ type: [CategoryResponse] })
   @Get()
   getAllCategory(
     @Query('limit') limit: number,
@@ -47,6 +80,16 @@ export class CategoriesController {
     return this.caegoriesService.getAllCategories(limit, page, sort);
   }
 
+  //UPDATE CATEGORY---------------------------------------
+  @ApiBearerAuth('Authorization')
+  @ApiOkResponse({ type: CategoryResponse })
+  @ApiUnauthorizedResponse({ type: UnauthorizedResponse })
+  @ApiForbiddenResponse({ type: ForbiddenResponse })
+  @ApiNotFoundResponse({ type: NotFoundResponse })
+  @ApiBadRequestResponse({
+    type: BadRequestResponse,
+    description: 'status is enum ACTIVE/ INACTVE',
+  })
   @Roles(ROLE_ENUM.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Put(':id')
@@ -57,6 +100,12 @@ export class CategoriesController {
     return this.caegoriesService.updateCategory(updateCategoryDto, id);
   }
 
+  //DELETE CATEGORY---------------------------------------
+  @ApiBearerAuth('Authorization')
+  @ApiNoContentResponse({ description: 'Delete success' })
+  @ApiNotFoundResponse({ type: NotFoundResponse })
+  @ApiUnauthorizedResponse({ type: UnauthorizedResponse })
+  @ApiForbiddenResponse({ type: ForbiddenResponse })
   @Roles(ROLE_ENUM.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete()

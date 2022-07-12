@@ -1,17 +1,13 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
-  IsEnum,
   IsNotEmpty,
   IsNumber,
-  max,
   Max,
-  min,
   Min,
   ValidateNested,
 } from 'class-validator';
 import { ObjectID } from '../../commons/commons.type';
-import { STATUS_ORDER_ENUM } from '../orders.constant';
 
 export class ItemOrderDto {
   @ApiProperty()
@@ -36,12 +32,16 @@ export class ItemOrderDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  priceFlashSale: number | null;
+  avatar: string;
 
   @ApiProperty()
   @IsNotEmpty()
-  // @Min(0)
-  // @Max(1)
+  priceFlashSale: number | null;
+
+  @ApiProperty()
+  @IsNumber()
+  @Min(0)
+  @Max(1)
   discount: number | null;
 
   @ApiProperty()

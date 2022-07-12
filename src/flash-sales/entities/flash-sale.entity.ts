@@ -7,6 +7,14 @@ export interface IItemFlashSale {
 
   quantity: number;
 
+  price: number;
+
+  avatar: string;
+
+  categoryName: string;
+
+  categoryId: string;
+
   quantitySold?: number;
 
   discount: number;

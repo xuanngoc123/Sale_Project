@@ -9,25 +9,47 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiInternalServerErrorResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/decorators/roles.decorator';
+import {
+  BadRequestResponse,
+  InternalServerErrorResponse,
+  NotFoundResponse,
+  UnauthorizedResponse,
+} from 'src/swagger/value-example';
 import { ROLE_ENUM } from 'src/users/users.constant';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { CancelOrderDto, UpdateOrderDto } from './dto/update-order.dto';
+import { OrderResponse } from './dto/swagger.dto';
 import { IOrder } from './entities/order.entity';
 import { STATUS_ORDER_ENUM } from './orders.constant';
 import { OrdersService } from './orders.service';
 
 @ApiTags('Order')
+@ApiBearerAuth('Authorization')
+@ApiInternalServerErrorResponse({
+  description: 'Internal Server Error',
+  type: InternalServerErrorResponse,
+})
 @Controller('orders')
 export class OrdersController {
   constructor(private ordersService: OrdersService) {}
 
-  @Roles(ROLE_ENUM.USER)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiCreatedResponse({ type: OrderResponse })
+  @ApiBadRequestResponse({ type: BadRequestResponse })
+  @ApiUnauthorizedResponse({ type: UnauthorizedResponse })
+  @UseGuards(JwtAuthGuard)
   @Post()
   createOrder(
     @Body() createOrderDto: CreateOrderDto,
@@ -36,8 +58,14 @@ export class OrdersController {
     return this.ordersService.createOrder(createOrderDto, req);
   }
 
-  @Roles(ROLE_ENUM.USER)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOkResponse({ type: OrderResponse })
+  @ApiBadRequestResponse({
+    type: BadRequestResponse,
+    description: 'Status is enum CANCEL/DELIVERED',
+  })
+  @ApiNotFoundResponse({ type: NotFoundResponse })
+  @ApiUnauthorizedResponse({ type: UnauthorizedResponse })
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   updateStatusOrder(
     @Query('status') status: STATUS_ORDER_ENUM,
@@ -47,8 +75,9 @@ export class OrdersController {
     return this.ordersService.updateStatusOrder(status, req, id);
   }
 
-  @Roles(ROLE_ENUM.USER)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOkResponse({ type: OrderResponse })
+  @ApiNotFoundResponse({ type: NotFoundResponse })
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   getMyOrderById(
     @Param('id') id: string,
@@ -57,8 +86,8 @@ export class OrdersController {
     return this.ordersService.getMyOrderById(id, req);
   }
 
-  @Roles(ROLE_ENUM.USER)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOkResponse({ type: [OrderResponse] })
+  @UseGuards(JwtAuthGuard)
   @Get()
   getListMyOrder(@Req() req: Request): Promise<IOrder[]> {
     return this.ordersService.getListMyOrder(req);

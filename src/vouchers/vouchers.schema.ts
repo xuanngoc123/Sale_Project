@@ -7,7 +7,7 @@ export class Voucher {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, min: 0, isInteger: true })
   quantity: number;
 
   @Prop({ required: true, default: 0 })

@@ -33,10 +33,6 @@ export class CreateItemDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  quantitySold: number;
-
-  @ApiProperty()
-  @IsNotEmpty()
   weight: number;
 
   @ApiProperty()

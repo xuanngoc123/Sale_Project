@@ -1,8 +1,6 @@
-import { BadRequestException } from '@nestjs/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import { Document } from 'mongoose';
 import { ObjectID } from '../commons/commons.type';
-import { Category } from '../categories/categories.shema';
 import { STATUS_ORDER_ENUM } from './orders.constant';
 export type OrderDocument = Order & Document;
 
@@ -17,11 +15,14 @@ class ItemOrder extends Document {
   @Prop({ required: true })
   barcode: number;
 
-  @Prop({ required: true })
+  @Prop({ required: true, min: 1, isInteger: true })
   quantity: number;
 
   @Prop({ required: true })
   price: number;
+
+  @Prop({ required: true })
+  avatar: string;
 
   @Prop({ required: true, default: null })
   priceFlashSale: number | null;
