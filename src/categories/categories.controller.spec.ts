@@ -29,8 +29,6 @@ describe('CategoriesController', () => {
     expect(controller).toBeDefined();
   });
   describe('create category', () => {
-    // const file = new File(['imageCategory'], 'darthvader.png', {});
-    // Object.defineProperty(file, 'size', { value: 1024 * 1024 + 1 });
     it('[Expect-success] Should call service to create category', async () => {
       MockCategoryService.createCategory.mockResolvedValue(true);
       const result = await controller.createCategory(new CreateCategoryDto());
@@ -60,8 +58,8 @@ describe('CategoriesController', () => {
   describe('get all category', () => {
     it('[Expect-success] Should call service to get all category', async () => {
       MockCategoryService.getAllCategories.mockResolvedValue(true);
-      // const result = await controller.getAllCategory();
-      // expect(result).toBe(true);
+      const result = await controller.getAllCategory(10, 1, 'createdAt');
+      expect(result).toBe(true);
     });
   });
 

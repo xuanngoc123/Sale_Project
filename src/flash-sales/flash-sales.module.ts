@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { MailsModule } from 'src/mails/mails.module';
-import { UsersModule } from 'src/users/users.module';
+import { MailsModule } from '../mails/mails.module';
+import { UsersModule } from '../users/users.module';
 import { FlashSalesController } from './flash-sales.controller';
 import { FlashSaleRepository } from './flash-sales.repository';
 import { FlashSaleSchema } from './flash-sales.schema';

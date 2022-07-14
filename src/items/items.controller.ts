@@ -37,7 +37,7 @@ import {
   InternalServerErrorResponse,
   NotFoundResponse,
   UnauthorizedResponse,
-} from 'src/swagger/value-example';
+} from '../swagger/value-example';
 import { ItemResponse } from './dto/swagger.dto';
 
 @ApiTags('Item')

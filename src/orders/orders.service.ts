@@ -3,11 +3,10 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Request } from 'express';
 import mongoose from 'mongoose';
-import { FlashSalesService } from 'src/flash-sales/flash-sales.service';
-import { ItemsService } from 'src/items/items.service';
-import { VouchersService } from 'src/vouchers/vouchers.service';
+import { FlashSalesService } from '../flash-sales/flash-sales.service';
+import { ItemsService } from '../items/items.service';
+import { VouchersService } from '../vouchers/vouchers.service';
 import { ICreateOrder } from './entities/create-order.entity';
 import { IOrder } from './entities/order.entity';
 import { STATUS_ORDER_ENUM } from './orders.constant';
@@ -22,7 +21,7 @@ export class OrdersService {
     private flashSalesService: FlashSalesService,
   ) {}
 
-  createOrder(createOrderData: ICreateOrder, req: Request): Promise<IOrder> {
+  createOrder(createOrderData: ICreateOrder, req: any): Promise<IOrder> {
     //user info
     createOrderData.userInfo = {
       userId: new mongoose.Types.ObjectId(req['user']['_id']),
@@ -92,7 +91,7 @@ export class OrdersService {
 
   async updateStatusOrder(
     status: STATUS_ORDER_ENUM,
-    req: Request,
+    req: any,
     id: string,
   ): Promise<IOrder> {
     const myOrder: IOrder = await this.orderRepository.findOneAndUpdate(
@@ -135,7 +134,7 @@ export class OrdersService {
     }
   }
 
-  async getMyOrderById(id: string, req: Request): Promise<IOrder> {
+  async getMyOrderById(id: string, req: any): Promise<IOrder> {
     const myOrder = await this.orderRepository.findOne({
       _id: id,
       'userInfo.userId': req['user']['_id'],
@@ -146,7 +145,7 @@ export class OrdersService {
     return myOrder;
   }
 
-  getListMyOrder(req: Request): Promise<IOrder[]> {
+  getListMyOrder(req: any): Promise<IOrder[]> {
     return this.orderRepository.find({ 'userInfo.userId': req['user']['_id'] });
   }
 }

@@ -2,8 +2,10 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   Put,
   Query,
@@ -96,7 +98,7 @@ export class UsersController {
   })
   @ApiBadRequestResponse({
     type: BadRequestResponse,
-    description: 'Account banned/ Account actived',
+    description: 'Account ban/ Account actived',
   })
   @ApiNotFoundResponse({
     type: NotFoundResponse,
@@ -104,23 +106,33 @@ export class UsersController {
   })
   @HttpCode(HttpStatus.OK)
   @Post('resend-email')
-  resendLinkActive(@Body() email: EmailDto) {
+  resendEmail(@Body() email: EmailDto) {
     return this.userService.resendEmail(email.email);
   }
 
-  //DELETE USER------------------------------------------------------------
+  //GET MY INFO------------------------------------------------------------
   @ApiBearerAuth('Authorization')
   @ApiUnauthorizedResponse({ type: UnauthorizedResponse })
-  @ApiNoContentResponse({ description: 'Delete success' })
+  @ApiOkResponse({ type: UpdateUserResponse })
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  getMyInfo(@Req() req: Request): Promise<IUser> {
+    return this.userService.getMyInfo(req);
+  }
+
+  //BANNED USER------------------------------------------------------------
+  @ApiBearerAuth('Authorization')
+  @ApiOkResponse({ type: UpdateUserResponse })
+  @ApiUnauthorizedResponse({ type: UnauthorizedResponse })
+  @ApiNotFoundResponse({ type: NotFoundResponse })
   @ApiForbiddenResponse({
     type: ForbiddenResponse,
     description: 'you are not admin',
   })
   @Roles(ROLE_ENUM.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Delete()
-  @HttpCode(HttpStatus.NO_CONTENT)
-  deleteUser(@Query('id') id: ObjectID): Promise<void> {
-    return this.userService.deleteUser(id);
+  @Put(':id')
+  banUser(@Param('id') id: string): Promise<IUser> {
+    return this.userService.banUser(id);
   }
 }

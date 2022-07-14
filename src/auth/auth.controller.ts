@@ -13,7 +13,7 @@ import {
   ForbiddenResponse,
   InternalServerErrorResponse,
   UnauthorizedResponse,
-} from 'src/swagger/value-example';
+} from '../swagger/value-example';
 import { LoginDto } from './dto/auth.dto';
 import { LoginAccessDto } from './dto/swagger.dto';
 import { LocalAuthGuard } from './local-auth.guard';
@@ -29,7 +29,7 @@ export class AuthController {
   @ApiUnauthorizedResponse({ type: UnauthorizedResponse })
   @ApiForbiddenResponse({
     type: ForbiddenResponse,
-    description: 'Account not actived / Account banned',
+    description: 'Account not actived / Account ban',
   })
   @ApiInternalServerErrorResponse({ type: InternalServerErrorResponse })
   @Post('login')

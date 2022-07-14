@@ -21,6 +21,7 @@ async function bootstrap() {
     .setTitle('Order')
     .setDescription('The order API description')
     .setVersion('1.0')
+    .addServer(`${process.env.HOST}${process.env.PORT}`)
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT', in: 'header' },
       'Authorization',

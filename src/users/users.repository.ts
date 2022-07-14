@@ -8,15 +8,4 @@ export class UserRepository extends EntityRepository<UserDocument> {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {
     super(userModel);
   }
-
-  async deleteOne(entityFilterQuery: FilterQuery<UserDocument>): Promise<any> {
-    const find = await this.findOne(entityFilterQuery);
-    if (!find) {
-      throw new NotFoundException();
-    }
-    find.email = `${find.email}-${Date.now()}}`;
-    find._delete = true;
-    find.save();
-    return true;
-  }
 }

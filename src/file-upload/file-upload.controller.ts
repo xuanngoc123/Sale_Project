@@ -32,7 +32,7 @@ import {
   ForbiddenResponse,
   InternalServerErrorResponse,
   UnauthorizedResponse,
-} from 'src/swagger/value-example';
+} from '../swagger/value-example';
 
 @ApiTags('Upload File')
 @ApiBearerAuth('Authorization')

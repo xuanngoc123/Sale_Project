@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
-import { MailsService } from 'src/mails/mails.service';
-import { STATE_USER_ENUM } from 'src/users/users.constant';
-import { UsersService } from 'src/users/users.service';
+import { MailsService } from '../mails/mails.service';
+import { STATE_USER_ENUM } from '../users/users.constant';
+import { UsersService } from '../users/users.service';
 import { ICreateFlashSale } from './entities/create-flash-sale.entity';
 import { IFlashSale } from './entities/flash-sale.entity';
 import { IUpdateFlashSale } from './entities/update-flash-sale.entity';

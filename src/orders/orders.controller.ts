@@ -19,17 +19,13 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { Request } from 'express';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { RolesGuard } from 'src/auth/roles.guard';
-import { Roles } from 'src/decorators/roles.decorator';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import {
   BadRequestResponse,
   InternalServerErrorResponse,
   NotFoundResponse,
   UnauthorizedResponse,
-} from 'src/swagger/value-example';
-import { ROLE_ENUM } from 'src/users/users.constant';
+} from '../swagger/value-example';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderResponse } from './dto/swagger.dto';
 import { IOrder } from './entities/order.entity';
@@ -53,7 +49,7 @@ export class OrdersController {
   @Post()
   createOrder(
     @Body() createOrderDto: CreateOrderDto,
-    @Req() req: Request,
+    @Req() req: any,
   ): Promise<IOrder> {
     return this.ordersService.createOrder(createOrderDto, req);
   }
@@ -69,7 +65,7 @@ export class OrdersController {
   @Put(':id')
   updateStatusOrder(
     @Query('status') status: STATUS_ORDER_ENUM,
-    @Req() req: Request,
+    @Req() req: any,
     @Param('id') id: string,
   ): Promise<IOrder> {
     return this.ordersService.updateStatusOrder(status, req, id);
@@ -79,17 +75,14 @@ export class OrdersController {
   @ApiNotFoundResponse({ type: NotFoundResponse })
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  getMyOrderById(
-    @Param('id') id: string,
-    @Req() req: Request,
-  ): Promise<IOrder> {
+  getMyOrderById(@Param('id') id: string, @Req() req: any): Promise<IOrder> {
     return this.ordersService.getMyOrderById(id, req);
   }
 
   @ApiOkResponse({ type: [OrderResponse] })
   @UseGuards(JwtAuthGuard)
   @Get()
-  getListMyOrder(@Req() req: Request): Promise<IOrder[]> {
+  getListMyOrder(@Req() req: any): Promise<IOrder[]> {
     return this.ordersService.getListMyOrder(req);
   }
 }

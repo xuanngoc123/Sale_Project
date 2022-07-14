@@ -16,3 +16,13 @@ export const mockUnauthorizedException = {
   statusCode: 401,
   message: 'Unauthorized',
 };
+
+export const mockBadRequestException = {
+  statusCode: 400,
+  message: 'Bad Request',
+};
+
+export const mockInternalServerError = {
+  statusCode: 500,
+  message: 'Internal Server Error',
+};

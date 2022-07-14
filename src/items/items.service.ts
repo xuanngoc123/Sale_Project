@@ -4,8 +4,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import mongoose from 'mongoose';
-import { FlashSalesService } from 'src/flash-sales/flash-sales.service';
+import { FlashSalesService } from '../flash-sales/flash-sales.service';
 import { ICreateItem } from './entities/create-item.entity';
 import { IItem } from './entities/item.entity';
 import { IUpdateItem } from './entities/update-item.entity';
@@ -22,7 +21,7 @@ export class ItemsService {
     try {
       return this.itemRepository.create(createItemData);
     } catch (error) {
-      throw new BadRequestException(error.message);
+      throw new InternalServerErrorException(error.message);
     }
   }
 

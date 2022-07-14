@@ -78,7 +78,7 @@ export class UsersService {
     }
   }
 
-  async updateInfo(updateUserData: IUpdateUser, req: Request): Promise<IUser> {
+  async updateInfo(updateUserData: IUpdateUser, req: any): Promise<IUser> {
     const updateInfo: IUser = await this.userRepository.findOneAndUpdate(
       { _id: req['user']['_id'] },
       updateUserData,
@@ -96,7 +96,7 @@ export class UsersService {
         throw new NotFoundException('Email not found');
       }
       if (user.status === STATE_USER_ENUM.BANNED) {
-        throw new BadRequestException('Account banned');
+        throw new BadRequestException('Account ban');
       }
       if (user.status === STATE_USER_ENUM.ACTIVE) {
         throw new BadRequestException('Account actived');
@@ -113,9 +113,61 @@ export class UsersService {
     }
   }
 
-  async deleteUser(id: ObjectID): Promise<void> {
-    await this.userRepository.deleteOne({ _id: id });
-    return;
+  async getMyInfo(req: any): Promise<IUser> {
+    const userInfo = await this.userRepository.findOne({
+      _id: req['user']['_id'],
+    });
+    const {
+      _id,
+      userName,
+      email,
+      phoneNumber,
+      address,
+      createdAt,
+      updatedAt,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      ...hiden
+    } = userInfo;
+
+    return {
+      _id,
+      userName,
+      email,
+      phoneNumber,
+      address,
+      createdAt,
+      updatedAt,
+    };
+  }
+
+  async banUser(id: string): Promise<IUser> {
+    const banUser = await this.userRepository.findOneAndUpdate(
+      { _id: id },
+      { status: STATE_USER_ENUM.BANNED },
+    );
+    const {
+      _id,
+      userName,
+      email,
+      phoneNumber,
+      address,
+      createdAt,
+      updatedAt,
+      status,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      ...hiden
+    } = banUser;
+
+    return {
+      _id,
+      userName,
+      email,
+      phoneNumber,
+      address,
+      status,
+      createdAt,
+      updatedAt,
+    };
   }
 
   findOne(filterQuery: FilterQuery<UserDocument>) {
