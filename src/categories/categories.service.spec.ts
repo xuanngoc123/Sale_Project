@@ -1,5 +1,12 @@
+import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { mockInternalServerError } from '../mocks/reject.value';
+import { FileUploadService } from '../file-upload/file-upload.service';
+import { ItemsService } from '../items/items.service';
+import {
+  mockBadRequestException,
+  mockInternalServerError,
+  mockNotFoundException,
+} from '../mocks/reject.value';
 import { mockCategory, mockCreateCategoryDto } from './categories.mock';
 import { CategoryRepository } from './categories.repository';
 import { CategoriesService } from './categories.service';
@@ -14,12 +21,28 @@ describe('CategoriesService', () => {
     findOne: jest.fn(),
     deleteOne: jest.fn(),
   };
+  const MockItemService = {
+    deleteItemByCategory: jest.fn(),
+  };
+  const MockFileUploadService = {
+    getUrl: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [CategoriesService, CategoryRepository],
+      providers: [
+        CategoriesService,
+        CategoryRepository,
+        ItemsService,
+        FileUploadService,
+      ],
     })
       .overrideProvider(CategoryRepository)
       .useValue(MockCategoryRepository)
+      .overrideProvider(ItemsService)
+      .useValue(MockItemService)
+      .overrideProvider(FileUploadService)
+      .useValue(MockFileUploadService)
       .compile();
 
     service = module.get<CategoriesService>(CategoriesService);
@@ -37,11 +60,11 @@ describe('CategoriesService', () => {
     });
 
     it('[Expect-Error] create category error', async () => {
-      MockCategoryRepository.create.mockResolvedValue(mockInternalServerError);
+      MockCategoryRepository.create.mockRejectedValue(mockInternalServerError);
       try {
         await service.createCategory(mockCreateCategoryDto);
       } catch (error) {
-        expect(error.statusCode).toEqual(500);
+        expect(500).toEqual(mockInternalServerError.statusCode);
       }
     });
   });
@@ -54,13 +77,13 @@ describe('CategoriesService', () => {
     });
 
     it('[Expect-Error] update category fail', async () => {
-      MockCategoryRepository.findOneAndUpdate.mockResolvedValue(
+      MockCategoryRepository.findOneAndUpdate.mockRejectedValue(
         mockInternalServerError,
       );
       try {
         await service.updateCategory(mockCreateCategoryDto, id);
       } catch (error) {
-        expect(error.statusCode).toEqual(500);
+        expect(500).toEqual(mockInternalServerError.statusCode);
       }
     });
   });
@@ -81,17 +104,18 @@ describe('CategoriesService', () => {
     });
 
     it('[Expect-Error] get one category fail', async () => {
-      MockCategoryRepository.findOne.mockRejectedValue(mockInternalServerError);
+      MockCategoryRepository.findOne.mockReturnValue(null);
       try {
         await service.getCategoryById(id);
       } catch (error) {
-        expect(error.statusCode).toEqual(500);
+        expect(error).toBeInstanceOf(NotFoundException);
       }
     });
   });
   describe('delete category', () => {
     it('[Expect-Success] delete category', async () => {
       MockCategoryRepository.deleteOne.mockResolvedValue(null);
+      MockItemService.deleteItemByCategory.mockResolvedValue(null);
       await service.deleteCategoryById(id);
     });
   });

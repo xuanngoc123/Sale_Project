@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class ItemResponse {
   @ApiProperty()
@@ -52,9 +52,21 @@ export class ItemResponse {
   @ApiProperty()
   updatedAt: Date;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   priceFlashSale: number;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   discount: number;
+
+  @ApiPropertyOptional()
+  quantityFlashSale: number;
+
+  @ApiPropertyOptional()
+  quantitySoldFlashSale: number;
+
+  @ApiProperty()
+  urlAvatar: string;
+
+  @ApiProperty()
+  urlImage: string[];
 }

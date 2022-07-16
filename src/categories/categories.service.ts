@@ -3,6 +3,8 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { FileUploadService } from '../file-upload/file-upload.service';
+import { ItemsService } from '../items/items.service';
 import { CategoryRepository } from './categories.repository';
 import { ICategory } from './entities/catetgory.entity';
 import { ICreateCategory } from './entities/create-category.entity';
@@ -10,19 +12,21 @@ import { IUpdateCategory } from './entities/update-category.entity';
 
 @Injectable()
 export class CategoriesService {
-  constructor(private categoryRepository: CategoryRepository) {}
+  constructor(
+    private categoryRepository: CategoryRepository,
+    private itemService: ItemsService,
+    private fileUploadService: FileUploadService,
+  ) {}
 
   async createCategory(
     createCategoryData: ICreateCategory,
   ): Promise<ICategory> {
-    try {
-      const createCategory = await this.categoryRepository.create(
-        createCategoryData,
-      );
-      return createCategory;
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
+    const createCategory = await this.categoryRepository
+      .create(createCategoryData)
+      .catch((error) => {
+        throw new InternalServerErrorException(error.message);
+      });
+    return this.addImage(createCategory);
   }
 
   async updateCategory(
@@ -34,14 +38,26 @@ export class CategoriesService {
         { _id: id },
         updateCategoryData,
       );
-      return updateCategory;
+
+      return this.addImage(updateCategory);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
   }
 
   async getAllCategories(limit, page, sort): Promise<ICategory[]> {
-    return this.categoryRepository.find({}, limit, page, sort);
+    const categories = await this.categoryRepository.find(
+      {},
+      limit,
+      page,
+      sort,
+    );
+    for (let i = 0, length = categories.length; i < length; i++) {
+      categories[i].imageCategory = this.fileUploadService.getUrl(
+        categories[i].imageCategory,
+      );
+    }
+    return categories;
   }
 
   async getCategoryById(id): Promise<ICategory> {
@@ -49,11 +65,27 @@ export class CategoriesService {
     if (!category) {
       throw new NotFoundException();
     }
-    return category;
+
+    return this.addImage(category);
   }
 
   async deleteCategoryById(id): Promise<any> {
     await this.categoryRepository.deleteOne({ _id: id });
+    await this.itemService.deleteItemByCategory(id);
     return;
+  }
+
+  getArrUrl(arrKey: string[]): [string] {
+    const result: any = [];
+    for (let i = 0, length = arrKey.length; i < length; i++) {
+      result.push(this.fileUploadService.getUrl(arrKey[i]));
+    }
+    return result;
+  }
+
+  addImage(result: any) {
+    result.imageCategory = this.fileUploadService.getUrl(result.imageCategory);
+    result.imageBanners = this.getArrUrl(result.imageBanners);
+    return result;
   }
 }

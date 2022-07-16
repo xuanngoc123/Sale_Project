@@ -19,7 +19,11 @@ export interface IItem {
 
   avatar: string;
 
+  urlAvatar?: string;
+
   images: [string];
+
+  urlImages?: string[];
 
   description: string;
 
@@ -36,4 +40,8 @@ export interface IItem {
   priceFlashSale?: number;
 
   discount?: number;
+
+  quantityFlashSale?: number;
+
+  quantitySoldFlashSale?: number;
 }

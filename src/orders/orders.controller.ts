@@ -16,6 +16,7 @@ import {
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -28,8 +29,8 @@ import {
 } from '../swagger/value-example';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderResponse } from './dto/swagger.dto';
+import { UpdateStatusOrderDto } from './dto/update-order.dto';
 import { IOrder } from './entities/order.entity';
-import { STATUS_ORDER_ENUM } from './orders.constant';
 import { OrdersService } from './orders.service';
 
 @ApiTags('Order')
@@ -42,6 +43,7 @@ import { OrdersService } from './orders.service';
 export class OrdersController {
   constructor(private ordersService: OrdersService) {}
 
+  //CREATE ORDER----------------------------------
   @ApiCreatedResponse({ type: OrderResponse })
   @ApiBadRequestResponse({ type: BadRequestResponse })
   @ApiUnauthorizedResponse({ type: UnauthorizedResponse })
@@ -54,6 +56,7 @@ export class OrdersController {
     return this.ordersService.createOrder(createOrderDto, req);
   }
 
+  //UPDATE STATUS ORDER----------------------------------
   @ApiOkResponse({ type: OrderResponse })
   @ApiBadRequestResponse({
     type: BadRequestResponse,
@@ -64,13 +67,14 @@ export class OrdersController {
   @UseGuards(JwtAuthGuard)
   @Put(':id')
   updateStatusOrder(
-    @Query('status') status: STATUS_ORDER_ENUM,
+    @Body() status: UpdateStatusOrderDto,
     @Req() req: any,
     @Param('id') id: string,
   ): Promise<IOrder> {
-    return this.ordersService.updateStatusOrder(status, req, id);
+    return this.ordersService.updateStatusOrder(status.status, req, id);
   }
 
+  //GET MY ORDER BY ID----------------------------------
   @ApiOkResponse({ type: OrderResponse })
   @ApiNotFoundResponse({ type: NotFoundResponse })
   @UseGuards(JwtAuthGuard)
@@ -79,10 +83,19 @@ export class OrdersController {
     return this.ordersService.getMyOrderById(id, req);
   }
 
+  //GET MY LIST ORDER----------------------------------
   @ApiOkResponse({ type: [OrderResponse] })
   @UseGuards(JwtAuthGuard)
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'sort', required: false })
   @Get()
-  getListMyOrder(@Req() req: any): Promise<IOrder[]> {
-    return this.ordersService.getListMyOrder(req);
+  getListMyOrder(
+    @Query('limit') limit: number,
+    @Query('page') page: number,
+    @Query('sort') sort: string,
+    @Req() req: any,
+  ): Promise<IOrder[]> {
+    return this.ordersService.getListMyOrder(req, limit, page, sort);
   }
 }

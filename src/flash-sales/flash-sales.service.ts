@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
+import { FileUploadService } from '../file-upload/file-upload.service';
 import { MailsService } from '../mails/mails.service';
 import { STATE_USER_ENUM } from '../users/users.constant';
 import { UsersService } from '../users/users.service';
@@ -16,6 +17,7 @@ export class FlashSalesService {
     private schedulerRegistry: SchedulerRegistry,
     private mailsService: MailsService,
     private usersService: UsersService,
+    private fileUploadService: FileUploadService,
   ) {}
 
   async createFlashSale(
@@ -24,6 +26,7 @@ export class FlashSalesService {
     const createFlashSale = await this.flashSaleRepository.create(
       createFlashSaleData,
     );
+
     const date = new Date(createFlashSaleData.startTime);
     const job = new CronJob(date, async () => {
       const allUser = await this.usersService.findAll({
@@ -45,30 +48,31 @@ export class FlashSalesService {
     });
     this.schedulerRegistry.addCronJob(`${Date.now()}`, job);
     job.start();
-    return createFlashSale;
+    return this.addImage(createFlashSale);
   }
 
-  updateFlashSale(
+  async updateFlashSale(
     id: string,
     updateFlashSaleData: IUpdateFlashSale,
   ): Promise<IFlashSale> {
-    return this.flashSaleRepository.findOneAndUpdate(
+    const updateFlashSale = await this.flashSaleRepository.findOneAndUpdate(
       { _id: id },
       updateFlashSaleData,
     );
+
+    return this.addImage(updateFlashSale);
   }
 
-  async getFlashSaleById(id: string): Promise<IFlashSale> {
+  async getFlashSale(): Promise<IFlashSale> {
     const now = new Date().toISOString();
     const flashSale = await this.flashSaleRepository.findOne({
-      _id: id,
       startTime: { $lt: now },
       endTime: { $gt: now },
     });
     if (!flashSale) {
       throw new NotFoundException();
     }
-    return flashSale;
+    return this.addImage(flashSale);
   }
 
   async deleteFlashSale(id): Promise<any> {
@@ -84,16 +88,28 @@ export class FlashSalesService {
     });
   }
 
-  updateQuantity(quantity: number) {
+  updateQuantity(itemId: any, quantity: number) {
     const now = new Date().toISOString();
     return this.flashSaleRepository.findOneAndUpdateQuantity(
-      { startTime: { $lt: now }, endTime: { $gt: now } },
+      {
+        'listItems.itemId': itemId,
+        startTime: { $lt: now },
+        endTime: { $gt: now },
+      },
       {
         $inc: {
-          'listItems.quantity': quantity,
-          'listItems.quantitySold': -quantity,
+          'listItems.$.quantitySold': -quantity,
         },
       },
     );
+  }
+
+  addImage(result: any) {
+    for (let i = 0, length = result.listItems.length; i < length; i++) {
+      result.listItems[i].avatar = this.fileUploadService.getUrl(
+        result.listItems[i].avatar,
+      );
+    }
+    return result;
   }
 }

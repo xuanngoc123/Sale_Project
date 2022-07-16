@@ -5,7 +5,7 @@ import { CreateOrderDto } from './create-order.dto';
 
 export class UpdateOrderDto extends PartialType(CreateOrderDto) {}
 
-export class CancelOrderDto {
+export class UpdateStatusOrderDto {
   @ApiProperty()
   @IsEnum(STATUS_ORDER_ENUM)
   status: STATUS_ORDER_ENUM;

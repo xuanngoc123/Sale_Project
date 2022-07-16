@@ -20,6 +20,7 @@ import {
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -89,6 +90,11 @@ export class ItemsController {
 
   //GET LIST ITEMS-------------------------------------------------
   @ApiOkResponse({ type: [ItemResponse] })
+  @ApiQuery({ name: 'category', required: false })
+  @ApiQuery({ name: 'tag', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'sort', required: false })
   @Get()
   getListItem(
     @Query('category') category: string,

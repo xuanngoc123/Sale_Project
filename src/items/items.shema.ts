@@ -65,15 +65,18 @@ export const ItemSchema = SchemaFactory.createForClass(Item);
 export interface ItemModel extends Document, ItemDto {}
 
 ItemSchema.pre<ItemModel>('save', async function (this, next) {
-  const category = await this.db
-    .collection('categories')
-    .findOne({ name: this.categoryName, _delete: false });
+  const data = this.getChanges();
 
-  if (!category) {
-    throw new BadRequestException('Category does not exist');
+  if (data['$set'].categoryName) {
+    const category = await this.db.collection('categories').findOne({
+      _id: new mongoose.Types.ObjectId(`${this.categoryId}`),
+      name: this.categoryName,
+      _delete: false,
+    });
+
+    if (!category) {
+      throw new BadRequestException('Category does not exist');
+    }
+    next();
   }
-  if (category._id != this.categoryId) {
-    throw new BadRequestException('categoryId and caegoryName invalid');
-  }
-  next();
 });

@@ -18,6 +18,7 @@ import {
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -71,6 +72,9 @@ export class CategoriesController {
 
   //GET ALL CATEGORIES---------------------------------------
   @ApiOkResponse({ type: [CategoryResponse] })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'sort', required: false })
   @Get()
   getAllCategory(
     @Query('limit') limit: number,

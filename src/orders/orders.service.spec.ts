@@ -7,6 +7,7 @@ import { OrdersService } from './orders.service';
 import { mockCreateOrderDto, mockOrder } from './orders.mock';
 import { STATUS_ORDER_ENUM } from './orders.constant';
 import { mockNotFoundException } from '../mocks/reject.value';
+import { FileUploadService } from '../file-upload/file-upload.service';
 
 describe('OrdersService', () => {
   let service: OrdersService;
@@ -35,6 +36,10 @@ describe('OrdersService', () => {
     updateQuantity: jest.fn(),
   };
 
+  const MockFileUploadService = {
+    getUrl: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -43,6 +48,7 @@ describe('OrdersService', () => {
         ItemsService,
         VouchersService,
         FlashSalesService,
+        FileUploadService,
       ],
     })
       .overrideProvider(OrderRepository)
@@ -53,6 +59,8 @@ describe('OrdersService', () => {
       .useValue(MockVoucherService)
       .overrideProvider(FlashSalesService)
       .useValue(MockFlashSaleService)
+      .overrideProvider(FileUploadService)
+      .useValue(MockFileUploadService)
       .compile();
 
     service = module.get<OrdersService>(OrdersService);
@@ -115,7 +123,7 @@ describe('OrdersService', () => {
   describe('get my list order', () => {
     it('[Expect-Success] get my list order', async () => {
       MockOrderRepository.find.mockResolvedValue([mockOrder]);
-      const result = await service.getListMyOrder(req);
+      const result = await service.getListMyOrder(req, 1, 1, 'sort');
       expect(result).toEqual([mockOrder]);
     });
   });

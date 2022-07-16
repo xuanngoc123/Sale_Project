@@ -10,6 +10,7 @@ import {
   mockNotFoundException,
 } from '../mocks/reject.value';
 import { mockUpdateInfoUser } from '../users/users.mock';
+import { FileUploadService } from '../file-upload/file-upload.service';
 
 describe('FlashSalesService', () => {
   let service: FlashSalesService;
@@ -32,6 +33,9 @@ describe('FlashSalesService', () => {
   const MockSchedulerRegistry = {
     addCronJob: jest.fn(),
   };
+  const MockFileUploadService = {
+    getUrl: jest.fn(),
+  };
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -40,6 +44,7 @@ describe('FlashSalesService', () => {
         SchedulerRegistry,
         MailsService,
         UsersService,
+        FileUploadService,
       ],
     })
       .overrideProvider(FlashSaleRepository)
@@ -50,6 +55,8 @@ describe('FlashSalesService', () => {
       .useValue(MockMailsService)
       .overrideProvider(SchedulerRegistry)
       .useValue(MockSchedulerRegistry)
+      .overrideProvider(FileUploadService)
+      .useValue(MockFileUploadService)
       .compile();
 
     service = module.get<FlashSalesService>(FlashSalesService);
@@ -88,13 +95,13 @@ describe('FlashSalesService', () => {
   describe('get flash sale', () => {
     it('[Expect-Success] get flash sale', async () => {
       MockFlashSaleRepository.findOne.mockResolvedValue(mockFlashSale);
-      const result = await service.getFlashSaleById(id);
+      const result = await service.getFlashSale();
       expect(result).toEqual(mockFlashSale);
     });
     it('[Expect-Error] not found flash sale', async () => {
       MockFlashSaleRepository.findOne.mockRejectedValue(mockNotFoundException);
       try {
-        await service.getFlashSaleById(id);
+        await service.getFlashSale();
       } catch (error) {
         expect(error.statusCode).toEqual(404);
       }
@@ -122,7 +129,7 @@ describe('FlashSalesService', () => {
       MockFlashSaleRepository.findOneAndUpdateQuantity.mockResolvedValue(
         mockFlashSale,
       );
-      const result = await service.updateQuantity(2);
+      const result = await service.updateQuantity(id, 2);
       expect(result).toEqual(mockFlashSale);
     });
   });

@@ -24,10 +24,10 @@ class ItemOrder extends Document {
   @Prop({ required: true })
   avatar: string;
 
-  @Prop({ required: true, default: null })
+  @Prop({ default: null })
   priceFlashSale: number | null;
 
-  @Prop({ required: true, default: null })
+  @Prop({ default: null })
   discount: number | null;
 
   @Prop({ required: true })

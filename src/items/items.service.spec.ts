@@ -7,8 +7,12 @@ import {
   mockInternalServerError,
   mockNotFoundException,
 } from '../mocks/reject.value';
-import { IFlashSale } from 'src/flash-sales/entities/flash-sale.entity';
+import { IFlashSale } from '../flash-sales/entities/flash-sale.entity';
 import mongoose from 'mongoose';
+import { FileUploadService } from '../file-upload/file-upload.service';
+import { OrdersService } from '../orders/orders.service';
+import { BadRequestException } from '@nestjs/common';
+import { IOrder } from 'src/orders/entities/order.entity';
 
 describe('ItemsService', () => {
   let service: ItemsService;
@@ -20,19 +24,36 @@ describe('ItemsService', () => {
     findOne: jest.fn(),
     deleteOne: jest.fn(),
     findOneAndUpdateQuantity: jest.fn(),
+    deleteMany: jest.fn(),
   };
   const MockFlashSaleService = {
     getFlashSaleNow: jest.fn(),
   };
+  const MockFileUploadService = {
+    getUrl: jest.fn(),
+  };
+  const MockOrderService = {
+    findAllOrderConfirmHaveItemId: jest.fn(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ItemsService, ItemRepository, FlashSalesService],
+      providers: [
+        ItemsService,
+        ItemRepository,
+        FlashSalesService,
+        FileUploadService,
+        OrdersService,
+      ],
     })
+      .overrideProvider(FileUploadService)
+      .useValue(MockFileUploadService)
       .overrideProvider(ItemRepository)
       .useValue(MockItemRepository)
       .overrideProvider(FlashSalesService)
       .useValue(MockFlashSaleService)
+      .overrideProvider(OrdersService)
+      .useValue(MockOrderService)
       .compile();
 
     service = module.get<ItemsService>(ItemsService);
@@ -68,7 +89,7 @@ describe('ItemsService', () => {
     });
 
     it('[Expect-Error] update item fail', async () => {
-      MockItemRepository.findOneAndUpdate.mockResolvedValue(
+      MockItemRepository.findOneAndUpdate.mockRejectedValue(
         mockInternalServerError,
       );
       try {
@@ -151,9 +172,19 @@ describe('ItemsService', () => {
   });
   describe('delete item', () => {
     it('[Expect-Success] delete item', async () => {
+      MockOrderService.findAllOrderConfirmHaveItemId.mockResolvedValue([]);
       MockItemRepository.deleteOne.mockResolvedValue(null);
       const result = await service.deleteItemById(id);
       expect(result).toEqual(null);
+    });
+
+    it('[Expect-Error] get one category fail', async () => {
+      MockOrderService.findAllOrderConfirmHaveItemId.mockReturnValue([]);
+      try {
+        await service.deleteItemById(id);
+      } catch (error) {
+        expect(error).toBeInstanceOf(BadRequestException);
+      }
     });
   });
 
@@ -162,6 +193,14 @@ describe('ItemsService', () => {
       MockItemRepository.findOneAndUpdateQuantity.mockResolvedValue(mockItem);
       const result = await service.updateQuantity(id, 2);
       expect(result).toEqual(mockItem);
+    });
+  });
+
+  describe('delete item by category', () => {
+    it('[Expect-Success] delete item by category', async () => {
+      MockItemRepository.deleteMany.mockResolvedValue(null);
+      const result = await service.deleteItemByCategory(id);
+      expect(result).toEqual(null);
     });
   });
 });

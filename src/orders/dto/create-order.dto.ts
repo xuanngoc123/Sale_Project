@@ -3,6 +3,7 @@ import { Type } from 'class-transformer';
 import {
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   Max,
   Min,
   ValidateNested,
@@ -35,13 +36,14 @@ export class ItemOrderDto {
   avatar: string;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   priceFlashSale: number | null;
 
   @ApiProperty()
   @IsNumber()
   @Min(0)
   @Max(1)
+  @IsOptional()
   discount: number | null;
 
   @ApiProperty()

@@ -46,7 +46,7 @@ describe('OrdersController', () => {
     it('[Expect-success] Should call service to update status order', async () => {
       MockOrderService.updateStatusOrder.mockResolvedValue(true);
       const result = await controller.updateStatusOrder(
-        STATUS_ORDER_ENUM.CANCEL,
+        { status: STATUS_ORDER_ENUM.CANCEL },
         req,
         id,
       );
@@ -65,7 +65,7 @@ describe('OrdersController', () => {
   describe('get my list order', () => {
     it('[Expect-success] Should call service to get my list order', async () => {
       MockOrderService.getListMyOrder.mockResolvedValue(true);
-      const result = await controller.getListMyOrder(id);
+      const result = await controller.getListMyOrder(1, 1, 'sort', req);
       expect(result).toBe(true);
     });
   });

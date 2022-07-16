@@ -81,12 +81,12 @@ export class FlashSalesController {
     return this.flashSalesService.updateFlashSale(id, updateFlashSaleDto);
   }
 
-  //GET FLASH SALE BY ID------------------------------------
+  //GET FLASH SALE NOW------------------------------------
   @ApiOkResponse({ type: FlashSaleResponse })
   @ApiNotFoundResponse({ type: NotFoundResponse })
-  @Get(':id')
-  getFlashSaleById(@Param('id') id: string): Promise<IFlashSale> {
-    return this.flashSalesService.getFlashSaleById(id);
+  @Get()
+  getFlashSale(): Promise<IFlashSale> {
+    return this.flashSalesService.getFlashSale();
   }
 
   //DELETE FLASH SALE------------------------------

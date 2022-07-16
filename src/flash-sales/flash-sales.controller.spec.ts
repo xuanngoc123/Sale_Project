@@ -10,7 +10,7 @@ describe('FlashSalesController', () => {
   const MockFlashSaleService = {
     createFlashSale: jest.fn(),
     updateFlashSale: jest.fn(),
-    getFlashSaleById: jest.fn(),
+    getFlashSale: jest.fn(),
     deleteFlashSale: jest.fn(),
   };
 
@@ -51,8 +51,8 @@ describe('FlashSalesController', () => {
 
   describe('get flash sale by id', () => {
     it('[Expect-success] Should call service to get flash sale by id', async () => {
-      MockFlashSaleService.getFlashSaleById.mockResolvedValue(true);
-      const result = await controller.getFlashSaleById(id);
+      MockFlashSaleService.getFlashSale.mockResolvedValue(true);
+      const result = await controller.getFlashSale();
       expect(result).toBe(true);
     });
   });

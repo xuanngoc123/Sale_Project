@@ -57,6 +57,23 @@ export abstract class EntityRepository<T extends Document> {
     return result.save();
   }
 
+  async updateMany(
+    entityFilterQuery: FilterQuery<T>,
+    updateEntityData: UpdateQuery<unknown>,
+  ) {
+    return await this.entityModel.updateMany(
+      entityFilterQuery,
+      updateEntityData,
+    );
+  }
+
+  async updateOne(
+    entityFilterQuery: FilterQuery<T>,
+    updateEntityData: UpdateQuery<unknown>,
+  ) {
+    return this.entityModel.updateOne(entityFilterQuery, updateEntityData);
+  }
+
   async findOneAndUpdateQuantity(
     entityFilterQuery: FilterQuery<T>,
     updateEntityData: UpdateQuery<unknown>,
@@ -75,7 +92,22 @@ export abstract class EntityRepository<T extends Document> {
     }
     find['name'] = `${find['name']}-${Date.now()}`;
     find['_delete'] = true;
-    find.save();
-    return true;
+    await find.save();
+    return;
+  }
+
+  async deleteMany(entityFilterQuery: FilterQuery<T>): Promise<T | null | any> {
+    const find = await this.findAll(entityFilterQuery);
+    if (find.length < 1) {
+      throw new NotFoundException();
+    }
+    const arrPromise = [];
+    for (let i = 0, length = find.length; i < length; i++) {
+      find[i]['name'] = `${find[i]['name']}-${Date.now()}`;
+      find[i]['_delete'] = true;
+      arrPromise.push(find[i].save());
+    }
+    Promise.all(arrPromise);
+    return;
   }
 }

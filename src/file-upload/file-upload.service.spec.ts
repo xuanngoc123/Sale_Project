@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { FileUploadService } from './file-upload.service';
 import { S3 } from 'aws-sdk';
-import { ResponseUploadFile } from 'src/commons/commons.type';
+import { ResponseUploadFile } from '../commons/commons.type';
 describe('FileUploadService', () => {
   let service: FileUploadService;
 

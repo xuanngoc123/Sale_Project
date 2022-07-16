@@ -1,5 +1,7 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { OrdersModule } from 'src/orders/orders.module';
+import { FileUploadModule } from '../file-upload/file-upload.module';
 import { FlashSalesModule } from '../flash-sales/flash-sales.module';
 import { ItemsController } from './items.controller';
 import { ItemRepository } from './items.repository';
@@ -10,6 +12,8 @@ import { ItemSchema } from './items.shema';
   imports: [
     MongooseModule.forFeature([{ name: 'Item', schema: ItemSchema }]),
     FlashSalesModule,
+    FileUploadModule,
+    forwardRef(() => OrdersModule),
   ],
   controllers: [ItemsController],
   providers: [ItemsService, ItemRepository],
