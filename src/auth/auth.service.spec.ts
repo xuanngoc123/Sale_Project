@@ -4,10 +4,9 @@ import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
 import { LoginAccessDto } from './dto/swagger.dto';
 import * as bcrypt from 'bcrypt';
-import {
-  mockForbiddenException,
-  mockNotFoundException,
-} from '../mocks/reject.value';
+import { mockForbiddenException } from '../mocks/reject.value';
+import { BadRequestException, ForbiddenException } from '@nestjs/common';
+import { STATE_USER_ENUM } from '../users/users.constant';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -65,26 +64,54 @@ describe('AuthService', () => {
     });
 
     it('[Expect-Error] not find user', async () => {
-      MockUserService.findOne.mockRejectedValue(mockNotFoundException);
+      MockUserService.findOne.mockResolvedValue(null);
       try {
         await service.validateUser(
           { email: 'xuanngochq2k@gmail.com' },
           { password: 'password' },
         );
       } catch (error) {
-        expect(error.statusCode).toEqual(mockNotFoundException.statusCode);
+        expect(error).toBeInstanceOf(BadRequestException);
       }
     });
 
-    it('[Expect-Error] user forbidden', async () => {
-      MockUserService.findOne.mockRejectedValue(mockForbiddenException);
+    it('[Expect-Error] forbidden inactive', async () => {
+      MockUserService.findOne.mockResolvedValue({
+        status: STATE_USER_ENUM.INACTIVE,
+      });
       try {
         await service.validateUser(
           { email: 'xuanngochq2k@gmail.com' },
           { password: 'password' },
         );
       } catch (error) {
-        expect(error.statusCode).toEqual(mockForbiddenException.statusCode);
+        expect(error).toBeInstanceOf(ForbiddenException);
+      }
+    });
+
+    it('[Expect-Error] forbidden banned', async () => {
+      MockUserService.findOne.mockResolvedValue({
+        status: STATE_USER_ENUM.BANNED,
+      });
+      try {
+        await service.validateUser(
+          { email: 'xuanngochq2k@gmail.com' },
+          { password: 'password' },
+        );
+      } catch (error) {
+        expect(error).toBeInstanceOf(ForbiddenException);
+      }
+    });
+
+    it('[Expect-Error] password invalid', async () => {
+      jest.spyOn(bcrypt, 'compare').mockResolvedValue(false);
+      try {
+        await service.validateUser(
+          { email: 'xuanngochq2k@gmail.com' },
+          { password: 'password' },
+        );
+      } catch (error) {
+        expect(error).toBeInstanceOf(BadRequestException);
       }
     });
   });

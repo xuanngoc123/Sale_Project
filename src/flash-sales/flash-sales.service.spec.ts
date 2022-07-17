@@ -11,6 +11,9 @@ import {
 } from '../mocks/reject.value';
 import { mockUpdateInfoUser } from '../users/users.mock';
 import { FileUploadService } from '../file-upload/file-upload.service';
+import { getModelToken } from '@nestjs/mongoose';
+import { FlashSale } from './flash-sales.schema';
+import { Model } from 'mongoose';
 
 describe('FlashSalesService', () => {
   let service: FlashSalesService;
@@ -45,6 +48,10 @@ describe('FlashSalesService', () => {
         MailsService,
         UsersService,
         FileUploadService,
+        {
+          provide: getModelToken(FlashSale.name),
+          useValue: Model,
+        },
       ],
     })
       .overrideProvider(FlashSaleRepository)
