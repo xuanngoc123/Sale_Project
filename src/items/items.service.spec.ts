@@ -12,7 +12,7 @@ import mongoose from 'mongoose';
 import { FileUploadService } from '../file-upload/file-upload.service';
 import { OrdersService } from '../orders/orders.service';
 import { BadRequestException } from '@nestjs/common';
-import { IOrder } from 'src/orders/entities/order.entity';
+import { STATUS_ORDER_ENUM } from '../orders/orders.constant';
 
 describe('ItemsService', () => {
   let service: ItemsService;
@@ -191,7 +191,11 @@ describe('ItemsService', () => {
   describe('update quantity', () => {
     it('[Expect-Success] update quantity', async () => {
       MockItemRepository.findOneAndUpdateQuantity.mockResolvedValue(mockItem);
-      const result = await service.updateQuantity(id, 2);
+      const result = await service.updateQuantity(
+        id,
+        2,
+        STATUS_ORDER_ENUM.COMFIRM,
+      );
       expect(result).toEqual(mockItem);
     });
   });

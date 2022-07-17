@@ -2,11 +2,7 @@ import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { FileUploadService } from '../file-upload/file-upload.service';
 import { ItemsService } from '../items/items.service';
-import {
-  mockBadRequestException,
-  mockInternalServerError,
-  mockNotFoundException,
-} from '../mocks/reject.value';
+import { mockInternalServerError } from '../mocks/reject.value';
 import { mockCategory, mockCreateCategoryDto } from './categories.mock';
 import { CategoryRepository } from './categories.repository';
 import { CategoriesService } from './categories.service';

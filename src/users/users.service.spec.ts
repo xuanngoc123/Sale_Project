@@ -16,8 +16,7 @@ import {
 import { UserRepository } from './users.repository';
 import { UsersService } from './users.service';
 import { JwtModule, JwtService } from '@nestjs/jwt';
-import { ConfigModule } from '@nestjs/config';
-import { request, Request } from 'express';
+import { STATUS_USER_ENUM } from './users.constant';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -159,7 +158,10 @@ describe('UsersService', () => {
   describe('banUser', () => {
     it('[Expect-Success] banUser success', async () => {
       MockUserRepository.findOneAndUpdate.mockResolvedValue(mockUpdateInfoUser);
-      const result = await service.banUser('62cce07d0cbee3b42a793db1');
+      const result = await service.banUser(
+        '62cce07d0cbee3b42a793db1',
+        STATUS_USER_ENUM.ACTIVE,
+      );
       expect(result).toEqual(mockUpdateInfoUser);
     });
   });

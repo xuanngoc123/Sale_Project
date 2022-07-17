@@ -14,6 +14,7 @@ import { FileUploadService } from '../file-upload/file-upload.service';
 import { getModelToken } from '@nestjs/mongoose';
 import { FlashSale } from './flash-sales.schema';
 import { Model } from 'mongoose';
+import { STATUS_ORDER_ENUM } from '../orders/orders.constant';
 
 describe('FlashSalesService', () => {
   let service: FlashSalesService;
@@ -136,7 +137,11 @@ describe('FlashSalesService', () => {
       MockFlashSaleRepository.findOneAndUpdateQuantity.mockResolvedValue(
         mockFlashSale,
       );
-      const result = await service.updateQuantity(id, 2);
+      const result = await service.updateQuantity(
+        id,
+        2,
+        STATUS_ORDER_ENUM.COMFIRM,
+      );
       expect(result).toEqual(mockFlashSale);
     });
   });

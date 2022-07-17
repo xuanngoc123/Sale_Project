@@ -7,8 +7,8 @@ import {
 } from '@nestjs/common';
 import { UserRepository } from './users.repository';
 import * as bcrypt from 'bcrypt';
-import { STATE_USER_ENUM } from './users.constant';
-import { ObjectID, PayloadJwt } from '../commons/commons.type';
+import { STATUS_USER_ENUM } from './users.constant';
+import { PayloadJwt } from '../commons/commons.type';
 import { MailsService } from '../mails/mails.service';
 import { FilterQuery } from 'mongoose';
 import { UserDocument } from './users.schema';
@@ -16,7 +16,6 @@ import { JwtService } from '@nestjs/jwt';
 import { ICreateUser } from './entities/create-user.entity';
 import { IUser } from './entities/users.entity';
 import { IUpdateUser } from './entities/update-user.entity';
-import { Request } from 'express';
 @Injectable()
 export class UsersService {
   constructor(
@@ -60,7 +59,7 @@ export class UsersService {
       const data: PayloadJwt = this.jwtService.verify(token);
       const userAfterUpdate = await this.userRepository.findOneAndUpdate(
         { email: data.email },
-        { status: STATE_USER_ENUM.ACTIVE },
+        { status: STATUS_USER_ENUM.ACTIVE },
       );
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { _id, userName, status, createdAt, updatedAt, ...hiden } =
@@ -95,10 +94,10 @@ export class UsersService {
       if (!user) {
         throw new NotFoundException('Email not found');
       }
-      if (user.status === STATE_USER_ENUM.BANNED) {
+      if (user.status === STATUS_USER_ENUM.BANNED) {
         throw new BadRequestException('Account ban');
       }
-      if (user.status === STATE_USER_ENUM.ACTIVE) {
+      if (user.status === STATUS_USER_ENUM.ACTIVE) {
         throw new BadRequestException('Account actived');
       }
       const activeToken = this.jwtService.sign({
@@ -140,10 +139,10 @@ export class UsersService {
     };
   }
 
-  async banUser(id: string): Promise<IUser> {
+  async banUser(id: string, statusUser: STATUS_USER_ENUM): Promise<IUser> {
     const banUser = await this.userRepository.findOneAndUpdate(
       { _id: id },
-      { status: STATE_USER_ENUM.BANNED },
+      { status: statusUser },
     );
     const {
       _id,

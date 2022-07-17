@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   forwardRef,
+  HttpException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -28,84 +29,95 @@ export class OrdersService {
   ) {}
 
   async createOrder(createOrderData: ICreateOrder, req: any): Promise<IOrder> {
-    //user info
-    createOrderData.userInfo = {
-      userId: new mongoose.Types.ObjectId(req['user']['_id']),
-      userName: req['user']['userName'],
-      address: req['user']['address'],
-      phoneNumber: req['user']['phoneNumber'],
-    };
+    try {
+      //user info
+      createOrderData.userInfo = {
+        userId: new mongoose.Types.ObjectId(req['user']['_id']),
+        userName: req['user']['userName'],
+        address: req['user']['address'],
+        phoneNumber: req['user']['phoneNumber'],
+      };
 
-    //items
-    let originalPrice = 0;
-    let totalPrice = 0;
-    const arrPromise = [];
+      //items
+      let originalPrice = 0;
+      let totalPrice = 0;
+      const arrPromise = [];
 
-    for (
-      let i = 0, length = createOrderData.listItems.length;
-      i < length;
-      i++
-    ) {
-      originalPrice =
-        originalPrice +
-        createOrderData.listItems[i].price *
-          createOrderData.listItems[i].quantity;
-
-      if (
-        createOrderData.listItems[i].priceFlashSale !== null ||
-        createOrderData.listItems[i].priceFlashSale !== undefined
+      for (
+        let i = 0, length = createOrderData.listItems.length;
+        i < length;
+        i++
       ) {
-        totalPrice =
-          totalPrice +
-          createOrderData.listItems[i].priceFlashSale *
+        originalPrice =
+          originalPrice +
+          createOrderData.listItems[i].price *
             createOrderData.listItems[i].quantity;
-        //update quantity flash sale
+
+        if (
+          createOrderData.listItems[i].priceFlashSale !== null ||
+          createOrderData.listItems[i].priceFlashSale !== undefined
+        ) {
+          totalPrice =
+            totalPrice +
+            createOrderData.listItems[i].priceFlashSale *
+              createOrderData.listItems[i].quantity;
+          //update quantity flash sale
+          arrPromise.push(
+            this.flashSalesService.updateQuantity(
+              createOrderData.listItems[i].itemId,
+              -createOrderData.listItems[i].quantity,
+              STATUS_ORDER_ENUM.COMFIRM,
+            ),
+          );
+        }
+        //update quantity items
         arrPromise.push(
-          this.flashSalesService.updateQuantity(
+          this.itemsService.updateQuantity(
             createOrderData.listItems[i].itemId,
             -createOrderData.listItems[i].quantity,
+            STATUS_ORDER_ENUM.COMFIRM,
           ),
         );
       }
-      //update quantity items
-      arrPromise.push(
-        this.itemsService.updateQuantity(
-          createOrderData.listItems[i].itemId,
-          -createOrderData.listItems[i].quantity,
-        ),
-      );
-    }
 
-    createOrderData.originalPrice = originalPrice;
-    createOrderData.totalPrice = totalPrice;
-    if (totalPrice === 0) {
-      createOrderData.totalPrice = originalPrice;
-    }
-
-    //add voucher
-    if (createOrderData.voucherInfo) {
-      if (
-        createOrderData.totalPrice <
-        createOrderData.voucherInfo.thresholdDiscount
-      ) {
-        throw new BadRequestException('Voucher invalid');
+      createOrderData.originalPrice = originalPrice;
+      createOrderData.totalPrice = totalPrice;
+      if (totalPrice === 0) {
+        createOrderData.totalPrice = originalPrice;
       }
-      createOrderData.totalPrice =
-        createOrderData.totalPrice - createOrderData.voucherInfo.discountAmount;
-      arrPromise.push(
-        this.vouchersService.updateQuantity(
-          createOrderData.voucherInfo.voucherId,
-          -1,
-        ),
+
+      //add voucher
+      if (createOrderData.voucherInfo) {
+        if (
+          createOrderData.totalPrice <
+          createOrderData.voucherInfo.thresholdDiscount
+        ) {
+          throw new BadRequestException('Voucher invalid');
+        }
+        createOrderData.totalPrice =
+          createOrderData.totalPrice -
+          createOrderData.voucherInfo.discountAmount;
+        arrPromise.push(
+          this.vouchersService.updateQuantity(
+            createOrderData.voucherInfo.voucherId,
+            -1,
+            STATUS_ORDER_ENUM.COMFIRM,
+          ),
+        );
+      }
+      await Promise.all(arrPromise);
+      const createOrder = await this.orderRepository
+        .create(createOrderData)
+        .catch((error) => {
+          throw new InternalServerErrorException(error.message);
+        });
+      return this.addImage(createOrder);
+    } catch (error) {
+      throw new HttpException(
+        error.response.message,
+        error.response.statusCode,
       );
     }
-    Promise.all(arrPromise);
-    const createOrder = await this.orderRepository
-      .create(createOrderData)
-      .catch((error) => {
-        throw new InternalServerErrorException(error.message);
-      });
-    return this.addImage(createOrder);
   }
 
   async updateStatusOrder(
@@ -113,54 +125,62 @@ export class OrdersService {
     req: any,
     id: string,
   ): Promise<IOrder> {
-    const myOrder: IOrder = await this.orderRepository
-      .findOneAndUpdate(
+    try {
+      const myOrder: IOrder = await this.orderRepository.findOneAndUpdate(
         {
           _id: id,
           'userInfo.userId': req['user']['_id'],
         },
         { status: status },
-      )
-      .catch((error) => {
-        throw new InternalServerErrorException(error.message);
-      });
-
-    let arrPromise = [];
-    for (let i = 0, length = myOrder.listItems.length; i < length; i++) {
-      if (
-        myOrder.listItems[i].priceFlashSale !== null ||
-        myOrder.listItems[i].priceFlashSale !== undefined
-      ) {
-        //update quantity flash sale
-        arrPromise.push(
-          this.flashSalesService.updateQuantity(
-            myOrder.listItems[i].itemId,
-            myOrder.listItems[i].quantity,
-          ),
-        );
-
-        arrPromise.push(
-          this.itemsService.updateQuantity(
-            myOrder.listItems[i].itemId,
-            myOrder.listItems[i].quantity,
-          ),
-        );
+      );
+      if (status === STATUS_ORDER_ENUM.DELIVERED) {
+        return this.addImage(myOrder);
       }
 
+      const arrPromise = [];
+      for (let i = 0, length = myOrder.listItems.length; i < length; i++) {
+        if (
+          myOrder.listItems[i].priceFlashSale !== null ||
+          myOrder.listItems[i].priceFlashSale !== undefined
+        ) {
+          //update quantity flash sale
+          arrPromise.push(
+            this.flashSalesService.updateQuantity(
+              myOrder.listItems[i].itemId,
+              myOrder.listItems[i].quantity,
+              STATUS_ORDER_ENUM.CANCEL,
+            ),
+          );
+          //update quantity item
+          arrPromise.push(
+            this.itemsService.updateQuantity(
+              myOrder.listItems[i].itemId,
+              myOrder.listItems[i].quantity,
+              STATUS_ORDER_ENUM.CANCEL,
+            ),
+          );
+        }
+      }
       if (myOrder.voucherInfo) {
         arrPromise.push(
-          this.vouchersService.updateQuantity(myOrder.voucherInfo.voucherId, 1),
+          this.vouchersService.updateQuantity(
+            myOrder.voucherInfo.voucherId,
+            1,
+            STATUS_ORDER_ENUM.CANCEL,
+          ),
         );
       }
 
       if (status === STATUS_ORDER_ENUM.CANCEL) {
-        Promise.all(arrPromise);
-      }
-      if (status === STATUS_ORDER_ENUM.DELIVERED) {
-        arrPromise = [];
+        await Promise.all(arrPromise);
       }
 
       return this.addImage(myOrder);
+    } catch (error) {
+      throw new HttpException(
+        error.response.message,
+        error.response.statusCode,
+      );
     }
   }
 

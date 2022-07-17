@@ -13,8 +13,7 @@ import { ICreateItem } from './entities/create-item.entity';
 import { IItem } from './entities/item.entity';
 import { IUpdateItem } from './entities/update-item.entity';
 import { ItemRepository } from './items.repository';
-import { ItemDocument } from './items.shema';
-import { FilterQuery, UpdateQuery } from 'mongoose';
+import { STATUS_ORDER_ENUM } from '../orders/orders.constant';
 
 @Injectable()
 export class ItemsService {
@@ -187,7 +186,11 @@ export class ItemsService {
     return this.itemRepository.deleteMany({ categoryId: categoryId });
   }
 
-  updateQuantity(id, quantity: number) {
+  async updateQuantity(id, quantity: number, status: STATUS_ORDER_ENUM) {
+    const item = await this.itemRepository.findOne({ _id: id });
+    if (item?.quantity < quantity && status === STATUS_ORDER_ENUM.COMFIRM) {
+      throw new BadRequestException('Out of item');
+    }
     return this.itemRepository.findOneAndUpdateQuantity(
       { _id: id },
       { $inc: { quantity: quantity, quantitySold: -quantity } },

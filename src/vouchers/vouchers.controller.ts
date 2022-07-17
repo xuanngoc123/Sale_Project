@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -105,6 +107,7 @@ export class VouchersController {
   @ApiNotFoundResponse({ type: NotFoundResponse })
   @Roles(ROLE_ENUM.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete()
   deteteVoucher(@Query('id') id: string) {
     return this.vouchersService.deleteVoucher(id);

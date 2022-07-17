@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { ROLE_ENUM, STATE_USER_ENUM } from './users.constant';
+import { ROLE_ENUM, STATUS_USER_ENUM } from './users.constant';
 
 export type UserDocument = User & Document;
 @Schema({ timestamps: true })
@@ -23,7 +23,7 @@ export class User {
   @Prop({ enum: ROLE_ENUM, default: ROLE_ENUM.USER })
   role: string;
 
-  @Prop({ enum: STATE_USER_ENUM, default: STATE_USER_ENUM.INACTIVE })
+  @Prop({ enum: STATUS_USER_ENUM, default: STATUS_USER_ENUM.INACTIVE })
   status: string;
 
   @Prop()

@@ -104,8 +104,12 @@ FlashSaleSchema.pre<FlashSaleModel>('save', async function (next) {
       $or: [
         {
           endTime: { $lt: this.endTime, $gt: this.startTime },
+          _delete: false,
         },
-        { startTime: { $lt: this.endTime, $gt: this.startTime } },
+        {
+          startTime: { $lt: this.endTime, $gt: this.startTime },
+          _delete: false,
+        },
       ],
     });
 

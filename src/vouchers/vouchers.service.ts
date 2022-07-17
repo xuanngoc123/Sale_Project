@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { STATUS_ORDER_ENUM } from '../orders/orders.constant';
 import { ICreateVoucher } from './entities/create-voucher.entity';
 import { IUpdateVoucher } from './entities/update-voucher.entity';
 import { IVoucher } from './entities/voucher.entity';
@@ -54,7 +59,11 @@ export class VouchersService {
     return;
   }
 
-  updateQuantity(id, quantity: number) {
+  async updateQuantity(id, quantity: number, status: STATUS_ORDER_ENUM) {
+    const voucher = await this.voucherRepository.findOne({ _id: id });
+    if (voucher?.quantity <= 0 && status === STATUS_ORDER_ENUM.COMFIRM) {
+      throw new BadRequestException('Out of voucher');
+    }
     return this.voucherRepository.findOneAndUpdateQuantity(
       { _id: id },
       { $inc: { quantity: quantity, quantityUsed: -quantity } },

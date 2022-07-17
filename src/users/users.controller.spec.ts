@@ -4,6 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { request, Request } from 'express';
+import { STATUS_USER_ENUM } from './users.constant';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -76,7 +77,7 @@ describe('UsersController', () => {
   describe('ban user', () => {
     it('[Expect-success] Should call service to ban user', async () => {
       MockUserService.banUser.mockResolvedValue(true);
-      const result = await controller.banUser('id123');
+      const result = await controller.banUser('id123', STATUS_USER_ENUM.ACTIVE);
       expect(result).toBe(true);
     });
   });

@@ -1,9 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
+import { STATUS_ORDER_ENUM } from '../orders/orders.constant';
 import { FileUploadService } from '../file-upload/file-upload.service';
 import { MailsService } from '../mails/mails.service';
-import { STATE_USER_ENUM } from '../users/users.constant';
+import { STATUS_USER_ENUM } from '../users/users.constant';
 import { UsersService } from '../users/users.service';
 import { ICreateFlashSale } from './entities/create-flash-sale.entity';
 import { IFlashSale } from './entities/flash-sale.entity';
@@ -27,10 +32,13 @@ export class FlashSalesService {
       createFlashSaleData,
     );
 
-    const date = new Date(createFlashSaleData.startTime);
-    const job = new CronJob(date, async () => {
+    const date =
+      new Date(createFlashSaleData.startTime).getTime() -
+      parseFloat(process.env.TIME_TO_SEND_MAIL) * 60 * 1000;
+
+    const job = new CronJob(new Date(date), async () => {
       const allUser = await this.usersService.findAll({
-        status: STATE_USER_ENUM.ACTIVE,
+        status: STATUS_USER_ENUM.ACTIVE,
       });
 
       const allPromise = [];
@@ -88,8 +96,27 @@ export class FlashSalesService {
     });
   }
 
-  updateQuantity(itemId: any, quantity: number) {
+  async updateQuantity(
+    itemId: any,
+    quantity: number,
+    status: STATUS_ORDER_ENUM,
+  ) {
     const now = new Date().toISOString();
+    const flashSale = await this.flashSaleRepository.findOne({
+      startTime: { $lt: now },
+      endTime: { $gt: now },
+    });
+    const itemInFlashSale = flashSale?.listItems.find((x) => {
+      return x.itemId.toString() == itemId;
+    });
+
+    if (
+      itemInFlashSale?.quantity - itemInFlashSale?.quantitySold <= 0 &&
+      status === STATUS_ORDER_ENUM.COMFIRM
+    ) {
+      throw new BadRequestException('Out of item in flash sale');
+    }
+
     return this.flashSaleRepository.findOneAndUpdateQuantity(
       {
         'listItems.itemId': itemId,

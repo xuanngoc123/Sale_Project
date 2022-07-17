@@ -8,7 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PayloadJwt } from '../commons/commons.type';
 import { EmailDto, PassDto } from './dto/auth.dto';
 import { UsersService } from '../users/users.service';
-import { STATE_USER_ENUM } from '../users/users.constant';
+import { STATUS_USER_ENUM } from '../users/users.constant';
 @Injectable()
 export class AuthService {
   constructor(
@@ -24,11 +24,11 @@ export class AuthService {
       throw new BadRequestException('Email not found');
     }
 
-    if (user.status === STATE_USER_ENUM.INACTIVE) {
+    if (user.status === STATUS_USER_ENUM.INACTIVE) {
       throw new ForbiddenException('Account not actived');
     }
-    if (user.status === STATE_USER_ENUM.BANNED) {
-      throw new ForbiddenException('Account ban');
+    if (user.status === STATUS_USER_ENUM.BANNED) {
+      throw new ForbiddenException('Account banned');
     }
 
     const checkPassword = await bcrypt.compare(password, user.password);

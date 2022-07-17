@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -112,6 +114,7 @@ export class CategoriesController {
   @ApiForbiddenResponse({ type: ForbiddenResponse })
   @Roles(ROLE_ENUM.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete()
   deleteCategory(@Query('id') id: string): Promise<any> {
     return this.caegoriesService.deleteCategoryById(id);

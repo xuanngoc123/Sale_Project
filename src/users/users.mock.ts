@@ -1,6 +1,4 @@
-import { STATE_USER_ENUM } from './users.constant';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { STATUS_USER_ENUM } from './users.constant';
 import { IUpdateUser } from './entities/update-user.entity';
 import { IUser } from './entities/users.entity';
 import mongoose from 'mongoose';
@@ -15,7 +13,7 @@ export const mockCreateUserDto: ICreateUser = {
 export const mockCreateUser = {
   _id: Date.now(),
   userName: 'xuanngochq2k',
-  status: STATE_USER_ENUM.INACTIVE,
+  status: STATUS_USER_ENUM.INACTIVE,
   createdAt: Date.now(),
   updatedAt: Date.now(),
 };

@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -19,7 +18,6 @@ import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
-  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags,
@@ -36,8 +34,7 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../decorators/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
-import { ObjectID } from '../commons/commons.type';
-import { ROLE_ENUM } from './users.constant';
+import { ROLE_ENUM, STATUS_USER_ENUM } from './users.constant';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
 import { IUser } from './entities/users.entity';
@@ -132,7 +129,10 @@ export class UsersController {
   @Roles(ROLE_ENUM.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Put(':id')
-  banUser(@Param('id') id: string): Promise<IUser> {
-    return this.userService.banUser(id);
+  banUser(
+    @Param('id') id: string,
+    @Query('status') status: STATUS_USER_ENUM,
+  ): Promise<IUser> {
+    return this.userService.banUser(id, status);
   }
 }
