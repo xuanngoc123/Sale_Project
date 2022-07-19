@@ -7,6 +7,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectConnection } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { FileUploadService } from '../file-upload/file-upload.service';
 import { FlashSalesService } from '../flash-sales/flash-sales.service';
@@ -26,9 +27,12 @@ export class OrdersService {
     private vouchersService: VouchersService,
     private flashSalesService: FlashSalesService,
     private fileUploadService: FileUploadService,
+    @InjectConnection() private readonly connection: mongoose.Connection,
   ) {}
 
   async createOrder(createOrderData: ICreateOrder, req: any): Promise<IOrder> {
+    const session = await this.connection.startSession();
+    session.startTransaction();
     try {
       //user info
       createOrderData.userInfo = {
@@ -67,6 +71,7 @@ export class OrdersService {
               createOrderData.listItems[i].itemId,
               -createOrderData.listItems[i].quantity,
               STATUS_ORDER_ENUM.COMFIRM,
+              session,
             ),
           );
         }
@@ -76,6 +81,7 @@ export class OrdersService {
             createOrderData.listItems[i].itemId,
             -createOrderData.listItems[i].quantity,
             STATUS_ORDER_ENUM.COMFIRM,
+            session,
           ),
         );
       }
@@ -102,6 +108,7 @@ export class OrdersService {
             createOrderData.voucherInfo.voucherId,
             -1,
             STATUS_ORDER_ENUM.COMFIRM,
+            session,
           ),
         );
       }
@@ -111,12 +118,14 @@ export class OrdersService {
         .catch((error) => {
           throw new InternalServerErrorException(error.message);
         });
+      await session.commitTransaction();
       return this.addImage(createOrder);
     } catch (error) {
-      throw new HttpException(
-        error.response.message,
-        error.response.statusCode,
-      );
+      await session.abortTransaction();
+      if (error.status) throw new HttpException(error.message, error.status);
+      throw new InternalServerErrorException(error.message);
+    } finally {
+      session.endSession();
     }
   }
 
@@ -125,6 +134,8 @@ export class OrdersService {
     req: any,
     id: string,
   ): Promise<IOrder> {
+    const session = await this.connection.startSession();
+    session.startTransaction();
     try {
       const myOrder: IOrder = await this.orderRepository.findOneAndUpdate(
         {
@@ -149,6 +160,7 @@ export class OrdersService {
               myOrder.listItems[i].itemId,
               myOrder.listItems[i].quantity,
               STATUS_ORDER_ENUM.CANCEL,
+              session,
             ),
           );
           //update quantity item
@@ -157,6 +169,7 @@ export class OrdersService {
               myOrder.listItems[i].itemId,
               myOrder.listItems[i].quantity,
               STATUS_ORDER_ENUM.CANCEL,
+              session,
             ),
           );
         }
@@ -167,6 +180,7 @@ export class OrdersService {
             myOrder.voucherInfo.voucherId,
             1,
             STATUS_ORDER_ENUM.CANCEL,
+            session,
           ),
         );
       }
@@ -174,13 +188,14 @@ export class OrdersService {
       if (status === STATUS_ORDER_ENUM.CANCEL) {
         await Promise.all(arrPromise);
       }
-
+      await session.commitTransaction();
       return this.addImage(myOrder);
     } catch (error) {
-      throw new HttpException(
-        error.response.message,
-        error.response.statusCode,
-      );
+      await session.abortTransaction();
+      if (error.status) throw new HttpException(error.message, error.status);
+      throw new InternalServerErrorException(error.message);
+    } finally {
+      session.endSession();
     }
   }
 

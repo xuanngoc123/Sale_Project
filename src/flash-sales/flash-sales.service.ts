@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  HttpException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -28,47 +29,52 @@ export class FlashSalesService {
   async createFlashSale(
     createFlashSaleData: ICreateFlashSale,
   ): Promise<IFlashSale> {
-    const createFlashSale = await this.flashSaleRepository.create(
-      createFlashSaleData,
-    );
+    try {
+      const createFlashSale = await this.flashSaleRepository.create(
+        createFlashSaleData,
+      );
 
-    const date =
-      new Date(createFlashSaleData.startTime).getTime() -
-      parseFloat(process.env.TIME_TO_SEND_MAIL) * 60 * 1000;
+      const date =
+        new Date(createFlashSaleData.startTime).getTime() -
+        parseFloat(process.env.TIME_TO_SEND_MAIL) * 60 * 1000;
 
-    const job = new CronJob(new Date(date), async () => {
-      const allUser = await this.usersService.findAll({
-        status: STATUS_USER_ENUM.ACTIVE,
-      });
+      const job = new CronJob(new Date(date), async () => {
+        const allUser = await this.usersService.findAll({
+          status: STATUS_USER_ENUM.ACTIVE,
+        });
 
-      const allPromise = [];
-      for (let i = 0, length = allUser.length; i < length; i++) {
-        allPromise.push(
-          this.mailsService.sendMail(
-            allUser[i],
-            `FlashSale sẽ bắt đầu vào lúc ${createFlashSaleData.startTime}`,
-            'THÔNG BÁO FLASH SALE',
+        Promise.all(
+          allUser.map((i) =>
+            this.mailsService.sendMail(
+              i,
+              `FlashSale sẽ bắt đầu vào lúc ${createFlashSaleData.startTime}`,
+              'THÔNG BÁO FLASH SALE',
+            ),
           ),
         );
-      }
-
-      Promise.all(allPromise);
-    });
-    this.schedulerRegistry.addCronJob(`${Date.now()}`, job);
-    job.start();
-    return this.addImage(createFlashSale);
+      });
+      this.schedulerRegistry.addCronJob(`${Date.now()}`, job);
+      job.start();
+      return this.addImage(createFlashSale);
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
   }
 
   async updateFlashSale(
     id: string,
     updateFlashSaleData: IUpdateFlashSale,
   ): Promise<IFlashSale> {
-    const updateFlashSale = await this.flashSaleRepository.findOneAndUpdate(
-      { _id: id },
-      updateFlashSaleData,
-    );
+    try {
+      const updateFlashSale = await this.flashSaleRepository.findOneAndUpdate(
+        { _id: id },
+        updateFlashSaleData,
+      );
 
-    return this.addImage(updateFlashSale);
+      return this.addImage(updateFlashSale);
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
   }
 
   async getFlashSale(): Promise<IFlashSale> {
@@ -100,7 +106,8 @@ export class FlashSalesService {
     itemId: any,
     quantity: number,
     status: STATUS_ORDER_ENUM,
-  ) {
+    session,
+  ): Promise<IFlashSale> {
     const now = new Date().toISOString();
     const flashSale = await this.flashSaleRepository.findOne({
       startTime: { $lt: now },
@@ -128,6 +135,7 @@ export class FlashSalesService {
           'listItems.$.quantitySold': -quantity,
         },
       },
+      session,
     );
   }
 

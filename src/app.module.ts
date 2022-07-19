@@ -37,7 +37,9 @@ import { configuration } from './config/configuration';
       },
     }),
     ScheduleModule.forRoot(),
-    MongooseModule.forRoot(`${process.env.MONGODB_URL}`),
+    MongooseModule.forRoot(`${process.env.MONGODB_URL}`, {
+      retryWrites: false,
+    }),
     {
       ...JwtModule.register({
         secret: process.env.ACCESS_TOKEN_KEY,

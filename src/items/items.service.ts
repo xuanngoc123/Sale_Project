@@ -186,7 +186,12 @@ export class ItemsService {
     return this.itemRepository.deleteMany({ categoryId: categoryId });
   }
 
-  async updateQuantity(id, quantity: number, status: STATUS_ORDER_ENUM) {
+  async updateQuantity(
+    id,
+    quantity: number,
+    status: STATUS_ORDER_ENUM,
+    session,
+  ) {
     const item = await this.itemRepository.findOne({ _id: id });
     if (item?.quantity < quantity && status === STATUS_ORDER_ENUM.COMFIRM) {
       throw new BadRequestException('Out of item');
@@ -194,6 +199,7 @@ export class ItemsService {
     return this.itemRepository.findOneAndUpdateQuantity(
       { _id: id },
       { $inc: { quantity: quantity, quantitySold: -quantity } },
+      session,
     );
   }
 

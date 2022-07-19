@@ -18,7 +18,7 @@ async function bootstrap() {
     }),
   );
   const config = new DocumentBuilder()
-    .setTitle('Order')
+    .setTitle('SELLING PROJECT')
     .setDescription('The order API description')
     .setVersion('1.0')
     .addServer(`${process.env.HOST}${process.env.PORT}`)

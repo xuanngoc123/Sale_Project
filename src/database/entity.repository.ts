@@ -77,11 +77,12 @@ export abstract class EntityRepository<T extends Document> {
   async findOneAndUpdateQuantity(
     entityFilterQuery: FilterQuery<T>,
     updateEntityData: UpdateQuery<unknown>,
+    session,
   ): Promise<T | null | any> {
     return this.entityModel.findOneAndUpdate(
       { ...entityFilterQuery, _delete: false },
       updateEntityData,
-      { new: true },
+      { new: true, session: session },
     );
   }
 

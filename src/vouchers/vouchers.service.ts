@@ -59,7 +59,12 @@ export class VouchersService {
     return;
   }
 
-  async updateQuantity(id, quantity: number, status: STATUS_ORDER_ENUM) {
+  async updateQuantity(
+    id,
+    quantity: number,
+    status: STATUS_ORDER_ENUM,
+    session,
+  ) {
     const voucher = await this.voucherRepository.findOne({ _id: id });
     if (voucher?.quantity <= 0 && status === STATUS_ORDER_ENUM.COMFIRM) {
       throw new BadRequestException('Out of voucher');
@@ -67,6 +72,7 @@ export class VouchersService {
     return this.voucherRepository.findOneAndUpdateQuantity(
       { _id: id },
       { $inc: { quantity: quantity, quantityUsed: -quantity } },
+      session,
     );
   }
 }
