@@ -6,7 +6,7 @@ import { FlashSalesModule } from '../flash-sales/flash-sales.module';
 import { ItemsController } from './items.controller';
 import { ItemRepository } from './items.repository';
 import { ItemsService } from './items.service';
-import { ItemSchema } from './items.shema';
+import { ItemSchema } from './items.schema';
 
 @Module({
   imports: [

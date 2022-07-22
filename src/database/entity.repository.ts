@@ -1,5 +1,11 @@
 import { NotFoundException } from '@nestjs/common';
-import { Document, FilterQuery, Model, UpdateQuery } from 'mongoose';
+import {
+  ClientSession,
+  Document,
+  FilterQuery,
+  Model,
+  UpdateQuery,
+} from 'mongoose';
 import { LIMIT_DEFAUT, PAGE_DEFAUT, SORT_DEFAUT } from './database.constant';
 export abstract class EntityRepository<T extends Document> {
   constructor(protected readonly entityModel: Model<T>) {}
@@ -77,7 +83,7 @@ export abstract class EntityRepository<T extends Document> {
   async findOneAndUpdateQuantity(
     entityFilterQuery: FilterQuery<T>,
     updateEntityData: UpdateQuery<unknown>,
-    session,
+    session: ClientSession,
   ): Promise<T | null | any> {
     return this.entityModel.findOneAndUpdate(
       { ...entityFilterQuery, _delete: false },

@@ -2,17 +2,23 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { FlashSalesService } from '../flash-sales/flash-sales.service';
 import { ItemRepository } from './items.repository';
 import { ItemsService } from './items.service';
-import { mockCreateItem, mockItem } from './items.mock';
+import {
+  mockCreateItem,
+  mockItem,
+  mockItemGetList,
+  mockItemGetOne,
+} from './items.mock';
 import {
   mockInternalServerError,
   mockNotFoundException,
 } from '../mocks/reject.value';
 import { IFlashSale } from '../flash-sales/entities/flash-sale.entity';
-import mongoose from 'mongoose';
+import mongoose, { ClientSession } from 'mongoose';
 import { FileUploadService } from '../file-upload/file-upload.service';
 import { OrdersService } from '../orders/orders.service';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { STATUS_ORDER_ENUM } from '../orders/orders.constant';
+import { mockFlashSale } from '../flash-sales/flash-sales.mock';
 
 describe('ItemsService', () => {
   let service: ItemsService;
@@ -35,6 +41,7 @@ describe('ItemsService', () => {
   const MockOrderService = {
     findAllOrderConfirmHaveItemId: jest.fn(),
   };
+  const find = jest.fn();
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -44,6 +51,12 @@ describe('ItemsService', () => {
         FlashSalesService,
         FileUploadService,
         OrdersService,
+        {
+          provide: Array,
+          useValue: {
+            find,
+          },
+        },
       ],
     })
       .overrideProvider(FileUploadService)
@@ -102,46 +115,8 @@ describe('ItemsService', () => {
 
   describe('get list item', () => {
     it('[Expect-Success] get list item', async () => {
-      const flashSale: IFlashSale = {
-        _id: new mongoose.Types.ObjectId('62cce07d0cbee3b42a793db1'),
-
-        name: 'string',
-
-        listItems: [
-          {
-            itemId: new mongoose.Types.ObjectId('62cce07d0cbee3b42a793db1'),
-
-            name: 'string',
-
-            quantity: 1,
-
-            price: 1,
-
-            avatar: 'string',
-
-            categoryName: 'string',
-
-            categoryId: 'string',
-
-            quantitySold: 1,
-
-            discount: 1,
-          },
-        ],
-
-        startTime: new Date(),
-
-        endTime: new Date(),
-
-        createdAt: new Date(),
-
-        updatedAt: new Date(),
-
-        _delete: false,
-      };
-
       MockItemRepository.find.mockResolvedValue([mockItem]);
-      MockFlashSaleService.getFlashSaleNow.mockResolvedValue(true);
+      MockFlashSaleService.getFlashSaleNow.mockResolvedValue(mockFlashSale);
       const result = await service.getListItem(
         'category',
         'tag',
@@ -149,24 +124,26 @@ describe('ItemsService', () => {
         1,
         'createdAt',
       );
-      expect(result).toEqual([mockItem]);
+      expect(result).toEqual([mockItemGetList]);
     });
   });
 
   describe('get one item by id', () => {
     it('[Expect-Success] get one item success', async () => {
       MockItemRepository.findOne.mockResolvedValue(mockItem);
-      MockFlashSaleService.getFlashSaleNow.mockResolvedValue(true);
-      const result = await service.getItemById(id);
-      expect(result).toEqual(mockItem);
+      MockFlashSaleService.getFlashSaleNow.mockResolvedValue(mockFlashSale);
+      const result = await service.getItemById(
+        mockFlashSale.listItems[0].itemId.toString(),
+      );
+      expect(result).toEqual(mockItemGetOne);
     });
 
     it('[Expect-Error] get one item fail', async () => {
-      MockItemRepository.findOne.mockRejectedValue(mockNotFoundException);
+      MockItemRepository.findOne.mockReturnValue(null);
       try {
         await service.getItemById(id);
       } catch (error) {
-        expect(error.statusCode).toEqual(404);
+        expect(error).toBeInstanceOf(NotFoundException);
       }
     });
   });
@@ -178,23 +155,37 @@ describe('ItemsService', () => {
       expect(result).toEqual(null);
     });
 
-    it('[Expect-Error] get one category fail', async () => {
+    it('[Expect-Error] delete item fail', async () => {
       MockOrderService.findAllOrderConfirmHaveItemId.mockReturnValue([]);
       try {
         await service.deleteItemById(id);
       } catch (error) {
-        expect(error).toBeInstanceOf(BadRequestException);
+        expect(error).toBeInstanceOf(
+          new BadRequestException('item can not delete'),
+        );
       }
     });
   });
 
   describe('update quantity', () => {
+    it('[Expect-fail] update quantity fail', async () => {
+      let session: ClientSession;
+      MockItemRepository.findOne.mockResolvedValue(mockItem);
+      try {
+        await service.updateQuantity(id, 1, STATUS_ORDER_ENUM.CANCEL, session);
+        expect;
+      } catch (error) {
+        expect(error).toBeInstanceOf(new BadRequestException('Out of item'));
+      }
+    });
     it('[Expect-Success] update quantity', async () => {
+      let session: ClientSession;
       MockItemRepository.findOneAndUpdateQuantity.mockResolvedValue(mockItem);
       const result = await service.updateQuantity(
         id,
         2,
         STATUS_ORDER_ENUM.COMFIRM,
+        session,
       );
       expect(result).toEqual(mockItem);
     });

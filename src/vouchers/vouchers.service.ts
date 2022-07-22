@@ -7,7 +7,7 @@ import { STATUS_ORDER_ENUM } from '../orders/orders.constant';
 import { ICreateVoucher } from './entities/create-voucher.entity';
 import { IUpdateVoucher } from './entities/update-voucher.entity';
 import { IVoucher } from './entities/voucher.entity';
-import { VoucherRepository } from './vouchers.repositoty';
+import { VoucherRepository } from './vouchers.repository';
 
 @Injectable()
 export class VouchersService {

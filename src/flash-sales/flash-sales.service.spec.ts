@@ -13,7 +13,7 @@ import { mockUpdateInfoUser } from '../users/users.mock';
 import { FileUploadService } from '../file-upload/file-upload.service';
 import { getModelToken } from '@nestjs/mongoose';
 import { FlashSale } from './flash-sales.schema';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { STATUS_ORDER_ENUM } from '../orders/orders.constant';
 
 describe('FlashSalesService', () => {
@@ -134,6 +134,7 @@ describe('FlashSalesService', () => {
 
   describe('update quantity fl sale', () => {
     it('[Expect-Success] update quantity fl sale', async () => {
+      let session: ClientSession;
       MockFlashSaleRepository.findOneAndUpdateQuantity.mockResolvedValue(
         mockFlashSale,
       );
@@ -141,6 +142,7 @@ describe('FlashSalesService', () => {
         id,
         2,
         STATUS_ORDER_ENUM.COMFIRM,
+        session,
       );
       expect(result).toEqual(mockFlashSale);
     });

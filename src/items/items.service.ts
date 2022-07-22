@@ -86,6 +86,7 @@ export class ItemsService {
     for (let i = 0, length = items.length; i < length; i++) {
       itemsReturn.push({
         ...items[i]['_doc'],
+        images: items[i].images,
         discount: null,
         priceFlashSale: null,
         quantityFlashSale: null,
@@ -130,6 +131,7 @@ export class ItemsService {
 
     const itemReturn: IItem = {
       ...item['_doc'],
+      images: item.images,
       priceFlashSale: null,
       discount: null,
       quantityFlashSale: null,
@@ -141,7 +143,7 @@ export class ItemsService {
 
     breakme: if (flashSale) {
       const itemFlashSale = flashSale.listItems.find(
-        (x) => x.itemId == item._id,
+        (x) => String(x.itemId) === String(id),
       );
 
       if (

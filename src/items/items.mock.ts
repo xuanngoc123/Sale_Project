@@ -18,8 +18,31 @@ export const mockItem: IItem = {
   createdAt: undefined,
   updatedAt: undefined,
   _delete: false,
-  priceFlashSale: 1,
+  priceFlashSale: 0,
   discount: 1,
+  quantityFlashSale: 1,
+  quantitySoldFlashSale: 1,
+  urlAvatar: undefined,
+  urlImages: [undefined],
+};
+
+export const mockItemGetOne = {
+  discount: 1,
+  priceFlashSale: 0,
+  images: ['1'],
+  quantityFlashSale: 1,
+  quantitySoldFlashSale: 1,
+  urlAvatar: undefined,
+  urlImages: [undefined],
+};
+
+export const mockItemGetList = {
+  discount: null,
+  images: ['1'],
+  urlAvatar: undefined,
+  priceFlashSale: null,
+  quantityFlashSale: null,
+  quantitySoldFlashSale: null,
 };
 
 export const mockCreateItem: CreateItemDto = {

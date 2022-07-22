@@ -122,6 +122,7 @@ export class OrdersService {
       return this.addImage(createOrder);
     } catch (error) {
       await session.abortTransaction();
+
       if (error.status) throw new HttpException(error.message, error.status);
       throw new InternalServerErrorException(error.message);
     } finally {

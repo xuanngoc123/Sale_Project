@@ -9,7 +9,7 @@ export class FileUploadService {
     folderName: string,
   ): Promise<ResponseUploadFile> {
     const params = {
-      Bucket: process.env.AWS_BUCKET_NAME,
+      Bucket: 'sale-project-nestjs',
       Body: file.buffer,
       Key: `${folderName}/${Date.now()}-${file.originalname}`,
     };

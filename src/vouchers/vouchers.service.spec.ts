@@ -1,7 +1,10 @@
+import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { ClientSession } from 'mongoose';
+import { STATUS_ORDER_ENUM } from '../orders/orders.constant';
 import { mockNotFoundException } from '../mocks/reject.value';
 import { mockCreateVoucherDto, mockVoucher } from './vouchers.mock';
-import { VoucherRepository } from './vouchers.repositoty';
+import { VoucherRepository } from './vouchers.repository';
 import { VouchersService } from './vouchers.service';
 
 describe('VouchersService', () => {
@@ -13,6 +16,7 @@ describe('VouchersService', () => {
     find: jest.fn(),
     findOne: jest.fn(),
     deleteOne: jest.fn(),
+    findOneAndUpdateQuantity: jest.fn(),
   };
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -57,7 +61,7 @@ describe('VouchersService', () => {
       try {
         await service.getVoucherById(id);
       } catch (error) {
-        expect(error.statusCode).toEqual(500);
+        expect(error.statusCode).toBeInstanceOf(NotFoundException);
       }
     });
   });
@@ -75,6 +79,32 @@ describe('VouchersService', () => {
       MockVoucherRepository.deleteOne.mockResolvedValue(undefined);
       const result = await service.deleteVoucher(id);
       expect(result).toEqual(undefined);
+    });
+  });
+
+  describe('update quantity', () => {
+    it('[Expect-fail] update quantity fail', async () => {
+      let session: ClientSession;
+      MockVoucherRepository.findOne.mockResolvedValue(null);
+      try {
+        await service.updateQuantity(id, 1, STATUS_ORDER_ENUM.CANCEL, session);
+        expect;
+      } catch (error) {
+        expect(error).toBeInstanceOf(NotFoundException);
+      }
+    });
+    it('[Expect-Success] update quantity', async () => {
+      let session: ClientSession;
+      MockVoucherRepository.findOneAndUpdateQuantity.mockResolvedValue(
+        mockVoucher,
+      );
+      const result = await service.updateQuantity(
+        id,
+        1,
+        STATUS_ORDER_ENUM.CANCEL,
+        session,
+      );
+      expect(result).toEqual(mockVoucher);
     });
   });
 });

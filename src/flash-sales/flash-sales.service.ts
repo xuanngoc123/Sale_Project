@@ -2,6 +2,7 @@ import {
   BadRequestException,
   HttpException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { SchedulerRegistry } from '@nestjs/schedule';
@@ -57,7 +58,8 @@ export class FlashSalesService {
       job.start();
       return this.addImage(createFlashSale);
     } catch (error) {
-      throw new HttpException(error.message, error.status);
+      if (error.status) throw new HttpException(error.message, error.status);
+      throw new InternalServerErrorException(error.message);
     }
   }
 

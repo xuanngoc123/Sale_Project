@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { VouchersController } from './vouchers.controller';
-import { VoucherRepository } from './vouchers.repositoty';
+import { VoucherRepository } from './vouchers.repository';
 import { VoucherSchema } from './vouchers.schema';
 import { VouchersService } from './vouchers.service';
 

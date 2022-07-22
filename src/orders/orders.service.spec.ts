@@ -8,6 +8,7 @@ import { mockCreateOrderDto, mockOrder } from './orders.mock';
 import { STATUS_ORDER_ENUM } from './orders.constant';
 import { mockNotFoundException } from '../mocks/reject.value';
 import { FileUploadService } from '../file-upload/file-upload.service';
+import { MongooseModule } from '@nestjs/mongoose';
 
 describe('OrdersService', () => {
   let service: OrdersService;
@@ -42,6 +43,7 @@ describe('OrdersService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [MongooseModule.forRoot(`hiden`)],
       providers: [
         OrdersService,
         OrderRepository,
