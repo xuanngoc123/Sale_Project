@@ -10,7 +10,7 @@ import { OrdersService } from '../orders/orders.service';
 import { FileUploadService } from '../file-upload/file-upload.service';
 import { FlashSalesService } from '../flash-sales/flash-sales.service';
 import { ICreateItem } from './entities/create-item.entity';
-import { IItem } from './entities/item.entity';
+import { IItem, IListItem } from './entities/item.entity';
 import { IUpdateItem } from './entities/update-item.entity';
 import { ItemRepository } from './items.repository';
 import { STATUS_ORDER_ENUM } from '../orders/orders.constant';
@@ -60,7 +60,7 @@ export class ItemsService {
     limit: number,
     page: number,
     sort: string,
-  ): Promise<IItem[]> {
+  ): Promise<any> {
     let object = {};
     if (category) {
       object = {
@@ -74,19 +74,14 @@ export class ItemsService {
         tag: tag,
       };
     }
-    const items: IItem[] = await this.itemRepository.find(
-      object,
-      limit,
-      page,
-      sort,
-    );
+    const items = await this.itemRepository.findList(object, limit, page, sort);
 
     //return image
     const itemsReturn: IItem[] = [];
-    for (let i = 0, length = items.length; i < length; i++) {
+    for (let i = 0, length = items.data.length; i < length; i++) {
       itemsReturn.push({
-        ...items[i]['_doc'],
-        images: items[i].images,
+        ...items.data[i]['_doc'],
+        images: items.data[i].images,
         discount: null,
         priceFlashSale: null,
         quantityFlashSale: null,
@@ -103,16 +98,16 @@ export class ItemsService {
     const flashSale = await this.flashSalesService.getFlashSaleNow();
 
     if (flashSale) {
-      for (let i = 0, length = items.length; i < length; i++) {
+      for (let i = 0, length = items.data.length; i < length; i++) {
         const itemFlashSale = flashSale.listItems.find(
-          (x) => x.itemId == items[i]._id,
+          (x) => x.itemId == items.data[i]._id,
         );
         if (itemFlashSale?.quantity <= itemFlashSale?.quantitySold) {
           continue;
         }
         if (itemFlashSale) {
           itemsReturn[i].priceFlashSale =
-            items[i].price - items[i].price * itemFlashSale.discount;
+            items.data[i].price - items.data[i].price * itemFlashSale.discount;
           itemsReturn[i].discount = itemFlashSale.discount;
           itemsReturn[i].quantityFlashSale = itemFlashSale.quantity;
           itemsReturn[i].quantitySoldFlashSale = itemFlashSale.quantitySold;
@@ -120,7 +115,12 @@ export class ItemsService {
       }
     }
 
-    return itemsReturn;
+    return {
+      items: itemsReturn,
+      totalPage: items.totalPage,
+      currentPage: items.currentPage,
+      numberItemPerPage: items.numberItemPerPage,
+    };
   }
 
   async getItemById(id: string): Promise<IItem> {

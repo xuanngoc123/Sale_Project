@@ -38,6 +38,31 @@ export abstract class EntityRepository<T extends Document> {
       .sort(sort);
   }
 
+  async findList(
+    entityFilterQuery: FilterQuery<T>,
+    limit = LIMIT_DEFAUT,
+    page = PAGE_DEFAUT,
+    sort = SORT_DEFAUT,
+  ): Promise<any> {
+    const list = await this.entityModel
+      .find({ ...entityFilterQuery, _delete: false })
+      .limit(limit)
+      .skip((page - 1) * limit)
+      .sort(sort);
+    const countElement = await this.entityModel
+      .find({
+        ...entityFilterQuery,
+        _delete: false,
+      })
+      .count();
+    return {
+      currentPage: page,
+      totalPage: Math.floor(countElement / limit) + 1,
+      numberItemPerPage: limit,
+      data: list,
+    };
+  }
+
   async findAll(entityFilterQuery: FilterQuery<T>): Promise<T[] | null> {
     return this.entityModel.find({ ...entityFilterQuery, _delete: false });
   }

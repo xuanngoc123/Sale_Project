@@ -45,3 +45,10 @@ export interface IItem {
 
   quantitySoldFlashSale?: number;
 }
+
+export interface IListItem {
+  items: [IItem];
+  totalPage: number;
+  currentPage: number;
+  numberItemPerPage: number;
+}
