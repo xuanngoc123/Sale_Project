@@ -61,6 +61,8 @@ export class UsersController {
   @ApiConflictResponse({ type: ConflicResponse })
   @Post('register')
   register(@Body() createUserDto: CreateUserDto): Promise<IUser> {
+    console.log(createUserDto);
+
     return this.userService.register(createUserDto);
   }
 

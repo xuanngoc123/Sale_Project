@@ -17,6 +17,7 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
+  app.enableCors({ origin: true });
   const config = new DocumentBuilder()
     .setTitle('SELLING PROJECT')
     .setDescription('The order API description')

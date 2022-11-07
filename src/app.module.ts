@@ -17,13 +17,13 @@ import { configuration } from './config/configuration';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      envFilePath: `${process.cwd()}/src/config/env/${
-        process.env.NODE_ENV
-      }.env`,
-      load: [configuration],
-      isGlobal: true,
-    }),
+    // ConfigModule.forRoot({
+    //   envFilePath: `${process.cwd()}/src/config/env/${
+    //     process.env.NODE_ENV
+    //   }.env`,
+    //   load: [configuration],
+    //   isGlobal: true,
+    // }),
     MailerModule.forRoot({
       transport: {
         host: process.env.MAIL_SERVER,

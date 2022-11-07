@@ -15,6 +15,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { FlashSale } from './flash-sales.schema';
 import { ClientSession, Model } from 'mongoose';
 import { STATUS_ORDER_ENUM } from '../orders/orders.constant';
+import { BadRequestException } from '@nestjs/common';
 
 describe('FlashSalesService', () => {
   let service: FlashSalesService;
@@ -87,7 +88,7 @@ describe('FlashSalesService', () => {
       try {
         await service.createFlashSale(mockCreateFlashSaleDto);
       } catch (error) {
-        expect(error.statusCode).toEqual(400);
+        expect(error).toBeInstanceOf(BadRequestException);
       }
     });
   });

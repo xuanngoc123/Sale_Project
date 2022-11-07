@@ -24,12 +24,12 @@ export class AuthService {
       throw new BadRequestException('Email not found');
     }
 
-    if (user.status === STATUS_USER_ENUM.INACTIVE) {
-      throw new ForbiddenException('Account not actived');
-    }
-    if (user.status === STATUS_USER_ENUM.BANNED) {
-      throw new ForbiddenException('Account banned');
-    }
+    // if (user.status === STATUS_USER_ENUM.INACTIVE) {
+    //   throw new ForbiddenException('Account not actived');
+    // }
+    // if (user.status === STATUS_USER_ENUM.BANNED) {
+    //   throw new ForbiddenException('Account banned');
+    // }
 
     const checkPassword = await bcrypt.compare(password, user.password);
     if (checkPassword === false) {
